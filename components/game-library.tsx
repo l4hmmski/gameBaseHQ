@@ -38,18 +38,35 @@ export function GameLibrary() {
       setIsLoading(true);
       setErrorMessage("");
 
-      const { data, error } =
-        await supabase
-          .from("games")
-          .select(`
-            id,
-            title,
-            platform,
-            status
-          `)
-          .order("created_at", {
-            ascending: false,
-          });
+      const {
+        data: { user },
+        error: userError,
+      } =
+        await supabase.auth.getUser();
+
+      if (userError || !user) {
+        setErrorMessage(
+          "You must be logged in to view games.",
+        );
+
+        setIsLoading(false);
+        return;
+      }
+
+      const {
+        data,
+        error,
+      } = await supabase
+        .from("games")
+        .select(`
+          id,
+          title,
+          platform,
+          status
+        `)
+        .order("created_at", {
+          ascending: false,
+        });
 
       if (error) {
         setErrorMessage(error.message);
@@ -69,21 +86,38 @@ export function GameLibrary() {
   ) {
     setErrorMessage("");
 
-    const { data, error } =
-      await supabase
-        .from("games")
-        .insert({
-          title: newGame.title,
-          platform: newGame.platform,
-          status: newGame.status,
-        })
-        .select(`
-          id,
-          title,
-          platform,
-          status
-        `)
-        .single();
+    const {
+      data: { user },
+      error: userError,
+    } =
+      await supabase.auth.getUser();
+
+    if (userError || !user) {
+      setErrorMessage(
+        "You must be logged in to add games.",
+      );
+
+      return;
+    }
+
+    const {
+      data,
+      error,
+    } = await supabase
+      .from("games")
+      .insert({
+        title: newGame.title,
+        platform: newGame.platform,
+        status: newGame.status,
+        user_id: user.id,
+      })
+      .select(`
+        id,
+        title,
+        platform,
+        status
+      `)
+      .single();
 
     if (error) {
       setErrorMessage(error.message);
@@ -298,7 +332,7 @@ export function GameLibrary() {
           "
         >
           <p className="font-medium text-gray-800">
-            Loading games...
+            Loading your games...
           </p>
         </section>
       ) : (
@@ -337,12 +371,12 @@ export function GameLibrary() {
               "
             >
               <h2 className="text-xl font-bold text-black">
-                No games found
+                Your library is empty
               </h2>
 
               <p className="mt-2 text-gray-800">
-                Add your first game or
-                change the filters.
+                Add your first game using
+                the form above.
               </p>
             </section>
           )}

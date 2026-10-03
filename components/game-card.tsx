@@ -1,43 +1,58 @@
+import { Game } from "@/types/game";
+
 type GameCardProps = {
-  title: string;
-  platform: string;
-  status: string;
+  game: Game;
+  onDelete: (id: string) => void;
 };
 
 export function GameCard({
-  title,
-  platform,
-  status,
+  game,
+  onDelete,
 }: GameCardProps) {
   return (
     <article
       className="
-        rounded-xl border
-        border-gray-200 bg-white
-        p-6 shadow-sm
+        flex flex-col rounded-xl
+        border border-gray-200
+        bg-white p-6 shadow-sm
         transition hover:-translate-y-1
-        hover:shadow-md text-black
+        hover:shadow-md
       "
     >
-      <h2 className="text-xl font-bold">
-        {title}
-      </h2>
+      <div className="flex-1">
+        <h2 className="text-xl font-bold text-black">
+          {game.title}
+        </h2>
 
-      <div className="mt-4 space-y-2">
-        <p className="text-gray-600">
-          <span className="font-semibold text-gray-900">
-            Platform:
-          </span>{" "}
-          {platform}
-        </p>
+        <div className="mt-4 space-y-2">
+          <p className="text-gray-600">
+            <span className="font-semibold text-gray-900">
+              Platform:
+            </span>{" "}
+            {game.platform}
+          </p>
 
-        <p className="text-gray-600">
-          <span className="font-semibold text-gray-900">
-            Status:
-          </span>{" "}
-          {status}
-        </p>
+          <p className="text-gray-600">
+            <span className="font-semibold text-gray-900">
+              Status:
+            </span>{" "}
+            {game.status}
+          </p>
+        </div>
       </div>
+
+      <button
+        type="button"
+        onClick={() => onDelete(game.id)}
+        className="
+          mt-6 rounded-lg border
+          border-red-200 px-4 py-2
+          font-semibold text-red-600
+          hover:bg-red-50
+        "
+      >
+        Delete
+      </button>
     </article>
   );
 }

@@ -8,4 +8,5 @@ export type Game = {
   title: string;
   platform: string;
   status: GameStatus;
+  cover_url: string | null;
 };

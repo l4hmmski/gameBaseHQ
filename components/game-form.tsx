@@ -25,7 +25,7 @@ export function GameForm({
     useState("");
 
   const [platform, setPlatform] =
-    useState("PlayStation 5");
+    useState("");
 
   const [status, setStatus] =
     useState<GameStatus>("Backlog");
@@ -33,158 +33,171 @@ export function GameForm({
   const [isSubmitting, setIsSubmitting] =
     useState(false);
 
+  const [error, setError] =
+    useState("");
+
   async function handleSubmit(
     event: FormEvent<HTMLFormElement>,
   ) {
     event.preventDefault();
 
     const cleanTitle = title.trim();
+    const cleanPlatform =
+      platform.trim();
 
-    if (!cleanTitle) {
+    if (
+      !cleanTitle ||
+      !cleanPlatform
+    ) {
+      setError(
+        "Enter a game title and platform.",
+      );
+
       return;
     }
 
     setIsSubmitting(true);
+    setError("");
 
-    await onAddGame({
-      title: cleanTitle,
-      platform,
-      status,
-    });
+    let coverUrl: string | null =
+      null;
 
-    setTitle("");
-    setPlatform("PlayStation 5");
-    setStatus("Backlog");
-    setIsSubmitting(false);
+    try {
+      const response = await fetch(
+        `/api/game-cover?title=${encodeURIComponent(
+          cleanTitle,
+        )}`,
+      );
+
+      if (response.ok) {
+        const data =
+          (await response.json()) as {
+            coverUrl: string | null;
+          };
+
+        coverUrl = data.coverUrl;
+      }
+
+      await onAddGame({
+        title: cleanTitle,
+        platform: cleanPlatform,
+        status,
+        cover_url: coverUrl,
+      });
+
+      setTitle("");
+      setPlatform("");
+      setStatus("Backlog");
+    } catch (submitError) {
+      console.error(
+        submitError,
+      );
+
+      setError(
+        "The game could not be added.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="
-        mb-10 grid gap-5 rounded-xl
-        border border-gray-300
-        bg-white p-6 text-gray-950
-        shadow-sm md:grid-cols-2
-      "
+      className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
     >
-      <div className="md:col-span-2">
-        <h2 className="text-2xl font-bold text-black">
-          Add a game
+      <div className="mb-6">
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-600">
+          New game
+        </p>
+
+        <h2 className="mt-2 text-2xl font-bold tracking-tight text-slate-950">
+          Add to your library
         </h2>
 
-        <p className="mt-1 text-gray-800">
-          Add a game to your Supabase database.
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          Enter the game details.
+          We&apos;ll automatically look
+          for its cover.
         </p>
       </div>
 
-      <label className="space-y-2">
-        <span className="block font-semibold text-black">
+      <div className="grid gap-4 md:grid-cols-3">
+        <label className="grid gap-2 text-sm font-semibold text-slate-800">
           Game title
-        </span>
 
-        <input
-          required
-          type="text"
-          value={title}
-          onChange={(event) =>
-            setTitle(event.target.value)
-          }
-          placeholder="The Last of Us"
-          className="
-            w-full rounded-lg border
-            border-gray-400 bg-white
-            px-4 py-3 text-black
-            placeholder:text-gray-500
-            outline-none
-            focus:border-blue-600
-            focus:ring-2
-            focus:ring-blue-100
-          "
-        />
-      </label>
+          <input
+            type="text"
+            value={title}
+            onChange={(event) => {
+              setTitle(
+                event.target.value,
+              );
+            }}
+            placeholder="The Witcher 3"
+            className="h-12 rounded-xl border border-slate-300 bg-white px-4 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+          />
+        </label>
 
-      <label className="space-y-2">
-        <span className="block font-semibold text-black">
+        <label className="grid gap-2 text-sm font-semibold text-slate-800">
           Platform
-        </span>
 
-        <select
-          value={platform}
-          onChange={(event) =>
-            setPlatform(event.target.value)
-          }
-          className="
-            w-full rounded-lg border
-            border-gray-400 bg-white
-            px-4 py-3 text-black
-            outline-none
-            focus:border-blue-600
-            focus:ring-2
-            focus:ring-blue-100
-          "
-        >
-          <option>PlayStation 5</option>
-          <option>Xbox Series X</option>
-          <option>Nintendo Switch</option>
-          <option>PC</option>
-        </select>
-      </label>
+          <input
+            type="text"
+            value={platform}
+            onChange={(event) => {
+              setPlatform(
+                event.target.value,
+              );
+            }}
+            placeholder="PlayStation 5"
+            className="h-12 rounded-xl border border-slate-300 bg-white px-4 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+          />
+        </label>
 
-      <label className="space-y-2">
-        <span className="block font-semibold text-black">
+        <label className="grid gap-2 text-sm font-semibold text-slate-800">
           Status
-        </span>
 
-        <select
-          value={status}
-          onChange={(event) =>
-            setStatus(
-              event.target.value as GameStatus,
-            )
-          }
-          className="
-            w-full rounded-lg border
-            border-gray-400 bg-white
-            px-4 py-3 text-black
-            outline-none
-            focus:border-blue-600
-            focus:ring-2
-            focus:ring-blue-100
-          "
-        >
-          <option value="Backlog">
-            Backlog
-          </option>
+          <select
+            value={status}
+            onChange={(event) => {
+              setStatus(
+                event.target
+                  .value as GameStatus,
+              );
+            }}
+            className="h-12 rounded-xl border border-slate-300 bg-white px-4 text-slate-950 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+          >
+            <option value="Backlog">
+              Backlog
+            </option>
 
-          <option value="Playing">
-            Playing
-          </option>
+            <option value="Playing">
+              Playing
+            </option>
 
-          <option value="Completed">
-            Completed
-          </option>
-        </select>
-      </label>
-
-      <div className="flex items-end">
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="
-            w-full rounded-lg
-            bg-blue-700 px-5 py-3
-            font-semibold text-white
-            hover:bg-blue-800
-            disabled:cursor-not-allowed
-            disabled:bg-blue-300
-          "
-        >
-          {isSubmitting
-            ? "Saving..."
-            : "Add game"}
-        </button>
+            <option value="Completed">
+              Completed
+            </option>
+          </select>
+        </label>
       </div>
+
+      {error && (
+        <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+          {error}
+        </p>
+      )}
+
+      <button
+        type="submit"
+        disabled={isSubmitting}
+        className="mt-5 inline-flex h-12 items-center justify-center rounded-xl bg-indigo-600 px-6 font-bold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-slate-400"
+      >
+        {isSubmitting
+          ? "Finding cover..."
+          : "Add game"}
+      </button>
     </form>
   );
 }

@@ -31,7 +31,7 @@ export default function HomePage() {
         <p
           className="
             mt-6 text-lg leading-8
-            text-gray-600
+            text-white
           "
         >
           Organise your games, track which

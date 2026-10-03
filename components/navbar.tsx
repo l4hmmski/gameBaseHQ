@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export function Navbar() {
   return (
-    <header className="border-b border-gray-200 bg-green-500 text-white">
+    <header className="border-b border-gray-200 bg-white text-white">
       <nav
         className="
           mx-auto flex max-w-6xl
@@ -12,7 +12,7 @@ export function Navbar() {
       >
         <Link
           href="/"
-          className="text-xl font-bold"
+          className="text-xl font-bold text-black"
         >
           Game Library
         </Link>
@@ -20,21 +20,21 @@ export function Navbar() {
         <div className="flex gap-6">
           <Link
             href="/"
-            className="hover:text-blue-600"
+            className="hover:text-blue-600 text-black"
           >
             Home
           </Link>
 
           <Link
             href="/library"
-            className="hover:text-blue-600"
+            className="hover:text-blue-600 text-black"
           >
             Library
           </Link>
 
           <Link
             href="/profile"
-            className="hover:text-blue-600"
+            className="hover:text-blue-600 text-black"
           >
             Profile
           </Link>

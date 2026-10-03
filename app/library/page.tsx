@@ -1,3 +1,5 @@
+import { GameCard } from "@/components/game-card";
+
 const games = [
   {
     id: 1,
@@ -17,6 +19,12 @@ const games = [
     platform: "Nintendo Switch",
     status: "Backlog",
   },
+  {
+    id: 4,
+    title: "Red Dead Redemption 2",
+    platform: "Xbox Series X",
+    status: "Completed",
+  },
 ];
 
 export default function LibraryPage() {
@@ -31,9 +39,8 @@ export default function LibraryPage() {
           My Game Library
         </h1>
 
-        <p className="mt-3 text-gray-600">
-          These games are temporary sample
-          data for now.
+        <p className="mt-3 text-black-600">
+          Browse the games in your collection.
         </p>
       </div>
 
@@ -45,26 +52,12 @@ export default function LibraryPage() {
         "
       >
         {games.map((game) => (
-          <article
+          <GameCard
             key={game.id}
-            className="
-              rounded-xl border
-              border-gray-200 bg-white
-              p-6 shadow-sm
-            "
-          >
-            <h2 className="text-xl font-bold">
-              {game.title}
-            </h2>
-
-            <p className="mt-3 text-gray-600">
-              Platform: {game.platform}
-            </p>
-
-            <p className="mt-1 text-gray-600">
-              Status: {game.status}
-            </p>
-          </article>
+            title={game.title}
+            platform={game.platform}
+            status={game.status}
+          />
         ))}
       </section>
     </main>

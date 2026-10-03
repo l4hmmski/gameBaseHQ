@@ -13,7 +13,9 @@ import {
 type NewGame = Omit<Game, "id">;
 
 type GameFormProps = {
-  onAddGame: (game: NewGame) => void;
+  onAddGame: (
+    game: NewGame,
+  ) => Promise<void>;
 };
 
 export function GameForm({
@@ -28,7 +30,10 @@ export function GameForm({
   const [status, setStatus] =
     useState<GameStatus>("Backlog");
 
-  function handleSubmit(
+  const [isSubmitting, setIsSubmitting] =
+    useState(false);
+
+  async function handleSubmit(
     event: FormEvent<HTMLFormElement>,
   ) {
     event.preventDefault();
@@ -39,7 +44,9 @@ export function GameForm({
       return;
     }
 
-    onAddGame({
+    setIsSubmitting(true);
+
+    await onAddGame({
       title: cleanTitle,
       platform,
       status,
@@ -48,6 +55,7 @@ export function GameForm({
     setTitle("");
     setPlatform("PlayStation 5");
     setStatus("Backlog");
+    setIsSubmitting(false);
   }
 
   return (
@@ -55,9 +63,9 @@ export function GameForm({
       onSubmit={handleSubmit}
       className="
         mb-10 grid gap-5 rounded-xl
-        border border-gray-200
-        bg-white p-6 shadow-sm
-        md:grid-cols-2 text-gray-400
+        border border-gray-300
+        bg-white p-6 text-gray-950
+        shadow-sm md:grid-cols-2
       "
     >
       <div className="md:col-span-2">
@@ -65,18 +73,18 @@ export function GameForm({
           Add a game
         </h2>
 
-        <p className="mt-1 text-black">
-          Add a game to your temporary
-          collection.
+        <p className="mt-1 text-gray-800">
+          Add a game to your Supabase database.
         </p>
       </div>
 
       <label className="space-y-2">
-        <span className="block font-semibold text-black ">
+        <span className="block font-semibold text-black">
           Game title
         </span>
 
         <input
+          required
           type="text"
           value={title}
           onChange={(event) =>
@@ -85,9 +93,13 @@ export function GameForm({
           placeholder="The Last of Us"
           className="
             w-full rounded-lg border
-            border-gray-300 px-4 py-3
+            border-gray-400 bg-white
+            px-4 py-3 text-black
+            placeholder:text-gray-500
             outline-none
-            focus:border-blue-500
+            focus:border-blue-600
+            focus:ring-2
+            focus:ring-blue-100
           "
         />
       </label>
@@ -100,15 +112,16 @@ export function GameForm({
         <select
           value={platform}
           onChange={(event) =>
-            setPlatform(
-              event.target.value,
-            )
+            setPlatform(event.target.value)
           }
           className="
             w-full rounded-lg border
-            border-gray-300 px-4 py-3
+            border-gray-400 bg-white
+            px-4 py-3 text-black
             outline-none
-            focus:border-blue-500
+            focus:border-blue-600
+            focus:ring-2
+            focus:ring-blue-100
           "
         >
           <option>PlayStation 5</option>
@@ -127,15 +140,17 @@ export function GameForm({
           value={status}
           onChange={(event) =>
             setStatus(
-              event.target
-                .value as GameStatus,
+              event.target.value as GameStatus,
             )
           }
           className="
             w-full rounded-lg border
-            border-gray-300 px-4 py-3
+            border-gray-400 bg-white
+            px-4 py-3 text-black
             outline-none
-            focus:border-blue-500
+            focus:border-blue-600
+            focus:ring-2
+            focus:ring-blue-100
           "
         >
           <option value="Backlog">
@@ -155,13 +170,19 @@ export function GameForm({
       <div className="flex items-end">
         <button
           type="submit"
+          disabled={isSubmitting}
           className="
-            w-full rounded-lg bg-blue-600
-            px-5 py-3 font-semibold
-            text-white hover:bg-blue-700
+            w-full rounded-lg
+            bg-blue-700 px-5 py-3
+            font-semibold text-white
+            hover:bg-blue-800
+            disabled:cursor-not-allowed
+            disabled:bg-blue-300
           "
         >
-          Add game
+          {isSubmitting
+            ? "Saving..."
+            : "Add game"}
         </button>
       </div>
     </form>

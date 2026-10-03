@@ -1,43 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
 
 import { GameCard } from "@/components/game-card";
 import { GameForm } from "@/components/game-form";
+import { supabase } from "@/lib/supabase";
 import { Game } from "@/types/game";
-
-const startingGames: Game[] = [
-  {
-    id: "1",
-    title: "The Witcher 3",
-    platform: "PlayStation 5",
-    status: "Completed",
-  },
-  {
-    id: "2",
-    title: "Cyberpunk 2077",
-    platform: "PC",
-    status: "Playing",
-  },
-  {
-    id: "3",
-    title: "The Legend of Zelda",
-    platform: "Nintendo Switch",
-    status: "Backlog",
-  },
-  {
-    id: "4",
-    title: "Red Dead Redemption 2",
-    platform: "Xbox Series X",
-    status: "Completed",
-  },
-];
 
 type NewGame = Omit<Game, "id">;
 
 export function GameLibrary() {
   const [games, setGames] =
-    useState<Game[]>(startingGames);
+    useState<Game[]>([]);
 
   const [search, setSearch] =
     useState("");
@@ -50,44 +27,108 @@ export function GameLibrary() {
   const [sortOrder, setSortOrder] =
     useState("title-ascending");
 
-  function addGame(
+  const [isLoading, setIsLoading] =
+    useState(true);
+
+  const [errorMessage, setErrorMessage] =
+    useState("");
+
+  useEffect(() => {
+    async function loadGames() {
+      setIsLoading(true);
+      setErrorMessage("");
+
+      const { data, error } =
+        await supabase
+          .from("games")
+          .select(`
+            id,
+            title,
+            platform,
+            status
+          `)
+          .order("created_at", {
+            ascending: false,
+          });
+
+      if (error) {
+        setErrorMessage(error.message);
+        setIsLoading(false);
+        return;
+      }
+
+      setGames((data ?? []) as Game[]);
+      setIsLoading(false);
+    }
+
+    loadGames();
+  }, []);
+
+  async function addGame(
     newGame: NewGame,
   ) {
-    const game: Game = {
-      id: crypto.randomUUID(),
-      ...newGame,
-    };
+    setErrorMessage("");
+
+    const { data, error } =
+      await supabase
+        .from("games")
+        .insert({
+          title: newGame.title,
+          platform: newGame.platform,
+          status: newGame.status,
+        })
+        .select(`
+          id,
+          title,
+          platform,
+          status
+        `)
+        .single();
+
+    if (error) {
+      setErrorMessage(error.message);
+      return;
+    }
 
     setGames((currentGames) => [
+      data as Game,
       ...currentGames,
-      game,
     ]);
   }
 
-  function deleteGame(
+  async function deleteGame(
     gameId: string,
   ) {
+    setErrorMessage("");
+
+    const { error } =
+      await supabase
+        .from("games")
+        .delete()
+        .eq("id", gameId);
+
+    if (error) {
+      setErrorMessage(error.message);
+      return;
+    }
+
     setGames((currentGames) =>
       currentGames.filter(
-        (game) =>
-          game.id !== gameId,
+        (game) => game.id !== gameId,
       ),
     );
   }
 
-  const visibleGames = games
+  const visibleGames = [...games]
     .filter((game) =>
       game.title
         .toLowerCase()
-        .includes(
-          search.toLowerCase(),
-        ),
+        .includes(search.toLowerCase()),
     )
     .filter(
       (game) =>
         platformFilter === "All" ||
-        game.platform ===
-          platformFilter,
+        game.platform === platformFilter,
     )
     .sort((firstGame, secondGame) => {
       if (
@@ -99,10 +140,7 @@ export function GameLibrary() {
         );
       }
 
-      if (
-        sortOrder ===
-        "platform"
-      ) {
+      if (sortOrder === "platform") {
         return firstGame.platform.localeCompare(
           secondGame.platform,
         );
@@ -115,16 +153,33 @@ export function GameLibrary() {
 
   return (
     <>
-      <GameForm
-        onAddGame={addGame}
-      />
+      <GameForm onAddGame={addGame} />
+
+      {errorMessage && (
+        <div
+          className="
+            mb-6 rounded-lg border
+            border-red-300 bg-red-50
+            p-4 text-red-900
+          "
+        >
+          <p className="font-bold">
+            Something went wrong
+          </p>
+
+          <p className="mt-1 text-sm">
+            {errorMessage}
+          </p>
+        </div>
+      )}
 
       <section
         className="
-          mb-8 grid gap-4 rounded-xl
-          border border-gray-200
-          bg-white p-5 shadow-sm
-          md:grid-cols-3 text-gray-400
+          mb-8 grid gap-4
+          rounded-xl border
+          border-gray-300 bg-white
+          p-5 text-gray-950
+          shadow-sm md:grid-cols-3
         "
       >
         <label className="space-y-2">
@@ -136,16 +191,18 @@ export function GameLibrary() {
             type="search"
             value={search}
             onChange={(event) =>
-              setSearch(
-                event.target.value,
-              )
+              setSearch(event.target.value)
             }
             placeholder="Search games..."
             className="
               w-full rounded-lg border
-              border-gray-300 px-4 py-2
+              border-gray-400 bg-white
+              px-4 py-2 text-black
+              placeholder:text-gray-500
               outline-none
-              focus:border-blue-500
+              focus:border-blue-600
+              focus:ring-2
+              focus:ring-blue-100
             "
           />
         </label>
@@ -164,9 +221,12 @@ export function GameLibrary() {
             }
             className="
               w-full rounded-lg border
-              border-gray-300 px-4 py-2
+              border-gray-400 bg-white
+              px-4 py-2 text-black
               outline-none
-              focus:border-blue-500
+              focus:border-blue-600
+              focus:ring-2
+              focus:ring-blue-100
             "
           >
             <option value="All">
@@ -205,9 +265,12 @@ export function GameLibrary() {
             }
             className="
               w-full rounded-lg border
-              border-gray-300 px-4 py-2
+              border-gray-400 bg-white
+              px-4 py-2 text-black
               outline-none
-              focus:border-blue-500
+              focus:border-blue-600
+              focus:ring-2
+              focus:ring-blue-100
             "
           >
             <option value="title-ascending">
@@ -225,50 +288,65 @@ export function GameLibrary() {
         </label>
       </section>
 
-      <p className="mb-5 text-white">
-        Showing {visibleGames.length} of{" "}
-        {games.length} games
-      </p>
-
-      {visibleGames.length > 0 ? (
-        <section
-          className="
-            grid gap-6
-            sm:grid-cols-2
-            lg:grid-cols-3
-          "
-        >
-          {visibleGames.map(
-            (game) => (
-              <GameCard
-                key={game.id}
-                game={game}
-                onDelete={
-                  deleteGame
-                }
-              />
-            ),
-          )}
-        </section>
-      ) : (
+      {isLoading ? (
         <section
           className="
             rounded-xl border
-            border-dashed
-            border-gray-300
-            bg-white p-12
-            text-center
+            border-gray-300 bg-white
+            p-12 text-center
+            text-gray-950
           "
         >
-          <h2 className="text-xl font-bold">
-            No games found
-          </h2>
-
-          <p className="mt-2 text-gray-600">
-            Change your filters or add
-            another game.
+          <p className="font-medium text-gray-800">
+            Loading games...
           </p>
         </section>
+      ) : (
+        <>
+          <p className="mb-5 font-medium text-gray-800">
+            Showing {visibleGames.length} of{" "}
+            {games.length} games
+          </p>
+
+          {visibleGames.length > 0 ? (
+            <section
+              className="
+                grid gap-6
+                sm:grid-cols-2
+                lg:grid-cols-3
+              "
+            >
+              {visibleGames.map(
+                (game) => (
+                  <GameCard
+                    key={game.id}
+                    game={game}
+                    onDelete={deleteGame}
+                  />
+                ),
+              )}
+            </section>
+          ) : (
+            <section
+              className="
+                rounded-xl border
+                border-dashed
+                border-gray-400
+                bg-white p-12
+                text-center text-gray-950
+              "
+            >
+              <h2 className="text-xl font-bold text-black">
+                No games found
+              </h2>
+
+              <p className="mt-2 text-gray-800">
+                Add your first game or
+                change the filters.
+              </p>
+            </section>
+          )}
+        </>
       )}
     </>
   );

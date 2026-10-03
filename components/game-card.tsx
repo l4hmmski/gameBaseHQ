@@ -13,9 +13,10 @@ export function GameCard({
     <article
       className="
         flex flex-col rounded-xl
-        border border-gray-200
-        bg-white p-6 shadow-sm
-        transition hover:-translate-y-1
+        border border-gray-300
+        bg-white p-6 text-gray-950
+        shadow-sm transition
+        hover:-translate-y-1
         hover:shadow-md
       "
     >
@@ -25,15 +26,15 @@ export function GameCard({
         </h2>
 
         <div className="mt-4 space-y-2">
-          <p className="text-gray-600">
-            <span className="font-semibold text-gray-900">
+          <p className="text-gray-800">
+            <span className="font-semibold text-black">
               Platform:
             </span>{" "}
             {game.platform}
           </p>
 
-          <p className="text-gray-600">
-            <span className="font-semibold text-gray-900">
+          <p className="text-gray-800">
+            <span className="font-semibold text-black">
               Status:
             </span>{" "}
             {game.status}
@@ -46,8 +47,8 @@ export function GameCard({
         onClick={() => onDelete(game.id)}
         className="
           mt-6 rounded-lg border
-          border-red-200 px-4 py-2
-          font-semibold text-red-600
+          border-red-300 px-4 py-2
+          font-semibold text-red-700
           hover:bg-red-50
         "
       >

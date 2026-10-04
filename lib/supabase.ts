@@ -1,6 +1,6 @@
 import {
-  createClient,
-} from "@supabase/supabase-js";
+  createBrowserClient,
+} from "@supabase/ssr";
 
 const supabaseUrl =
   process.env
@@ -20,7 +20,7 @@ if (
 }
 
 export const supabase =
-  createClient(
+  createBrowserClient(
     supabaseUrl,
     supabasePublishableKey,
   );

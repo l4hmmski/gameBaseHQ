@@ -1,4 +1,10 @@
-import type { Metadata } from "next";
+import type {
+  Metadata,
+} from "next";
+
+import {
+  Analytics,
+} from "@vercel/analytics/next";
 
 import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
@@ -6,15 +12,23 @@ import { Navbar } from "@/components/navbar";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Game Library",
+  title: {
+    default:
+      "Game Library",
+
+    template:
+      "%s | Game Library",
+  },
+
   description:
-    "Manage and track your personal video game collection.",
+    "Manage, rate and track your personal video game collection.",
 };
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children:
+    React.ReactNode;
 }>) {
   return (
     <html lang="en">
@@ -28,6 +42,8 @@ export default function RootLayout({
 
           <Footer />
         </div>
+
+        <Analytics />
       </body>
     </html>
   );

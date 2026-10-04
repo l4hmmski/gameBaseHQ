@@ -16,9 +16,10 @@ export default function ProfilePage() {
             </h1>
 
             <p className="mt-4 max-w-2xl text-lg leading-8 text-slate-600">
-              Manage your account details,
-              profile information and
-              gaming preferences.
+              Manage your account
+              details, profile
+              information and sharing
+              preferences.
             </p>
           </div>
         </section>

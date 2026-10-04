@@ -10,28 +10,39 @@ import {
   useRouter,
 } from "next/navigation";
 
+import { PublicProfileSettings } from "@/components/public-profile-settings";
 import { supabase } from "@/lib/supabase";
 import { Profile } from "@/types/profile";
 
 const platforms = [
   "PlayStation 5",
-  "Xbox Series X",
+  "PlayStation 4",
+  "Xbox Series X|S",
+  "Xbox One",
+  "Nintendo Switch 2",
   "Nintendo Switch",
   "PC",
+  "Steam Deck",
 ];
 
 export function ProfileForm() {
   const router =
     useRouter();
 
-  const [userId, setUserId] =
-    useState("");
+  const [
+    userId,
+    setUserId,
+  ] = useState("");
 
-  const [email, setEmail] =
-    useState("");
+  const [
+    email,
+    setEmail,
+  ] = useState("");
 
-  const [username, setUsername] =
-    useState("");
+  const [
+    username,
+    setUsername,
+  ] = useState("");
 
   const [
     displayName,
@@ -43,20 +54,30 @@ export function ProfileForm() {
     setFavouritePlatform,
   ] = useState("");
 
-  const [bio, setBio] =
-    useState("");
+  const [
+    bio,
+    setBio,
+  ] = useState("");
 
-  const [joinedDate, setJoinedDate] =
-    useState("");
+  const [
+    joinedDate,
+    setJoinedDate,
+  ] = useState("");
 
-  const [gameCount, setGameCount] =
-    useState(0);
+  const [
+    gameCount,
+    setGameCount,
+  ] = useState(0);
 
-  const [isLoading, setIsLoading] =
-    useState(true);
+  const [
+    isLoading,
+    setIsLoading,
+  ] = useState(true);
 
-  const [isSaving, setIsSaving] =
-    useState(false);
+  const [
+    isSaving,
+    setIsSaving,
+  ] = useState(false);
 
   const [
     isDeleting,
@@ -89,8 +110,11 @@ export function ProfileForm() {
       setErrorMessage("");
 
       const {
-        data: { user },
-        error: userError,
+        data: {
+          user,
+        },
+        error:
+          userError,
       } =
         await supabase.auth
           .getUser();
@@ -108,28 +132,39 @@ export function ProfileForm() {
         return;
       }
 
-      setUserId(user.id);
+      setUserId(
+        user.id,
+      );
+
       setEmail(
         user.email ?? "",
       );
 
       const {
         data,
-        error: profileError,
-      } = await supabase
-        .from("profiles")
-        .select(`
-          id,
-          username,
-          display_name,
-          favourite_platform,
-          bio,
-          created_at
-        `)
-        .eq("id", user.id)
-        .single();
+        error:
+          profileError,
+      } =
+        await supabase
+          .from("profiles")
+          .select(`
+            id,
+            username,
+            display_name,
+            favourite_platform,
+            bio,
+            is_public,
+            created_at
+          `)
+          .eq(
+            "id",
+            user.id,
+          )
+          .single();
 
-      if (profileError) {
+      if (
+        profileError
+      ) {
         setErrorMessage(
           profileError.message,
         );
@@ -143,7 +178,8 @@ export function ProfileForm() {
         data as Profile;
 
       setUsername(
-        profile.username ?? "",
+        profile.username ??
+          "",
       );
 
       setDisplayName(
@@ -157,7 +193,8 @@ export function ProfileForm() {
       );
 
       setBio(
-        profile.bio ?? "",
+        profile.bio ??
+          "",
       );
 
       setJoinedDate(
@@ -177,15 +214,19 @@ export function ProfileForm() {
 
       const {
         count,
-        error: countError,
-      } = await supabase
-        .from("games")
-        .select("*", {
-          count: "exact",
-          head: true,
-        });
+        error:
+          countError,
+      } =
+        await supabase
+          .from("games")
+          .select("*", {
+            count: "exact",
+            head: true,
+          });
 
-      if (countError) {
+      if (
+        countError
+      ) {
         setErrorMessage(
           countError.message,
         );
@@ -206,7 +247,8 @@ export function ProfileForm() {
   }, []);
 
   async function handleSubmit(
-    event: FormEvent<HTMLFormElement>,
+    event:
+      FormEvent<HTMLFormElement>,
   ) {
     event.preventDefault();
 
@@ -220,7 +262,8 @@ export function ProfileForm() {
 
     if (
       cleanUsername &&
-      cleanUsername.length < 3
+      cleanUsername.length <
+        3
     ) {
       setErrorMessage(
         "Username must contain at least 3 characters.",
@@ -244,7 +287,9 @@ export function ProfileForm() {
 
     setIsSaving(true);
 
-    const { error } =
+    const {
+      error,
+    } =
       await supabase
         .from("profiles")
         .update({
@@ -406,13 +451,17 @@ export function ProfileForm() {
 
   return (
     <div className="grid gap-8 lg:grid-cols-[320px_1fr]">
+      {/* LEFT SIDEBAR */}
+
       <aside className="space-y-5">
         <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
           <div className="h-24 bg-gradient-to-r from-indigo-600 to-violet-600" />
 
           <div className="px-6 pb-6">
             <div className="-mt-10 flex h-20 w-20 items-center justify-center rounded-3xl border-4 border-white bg-slate-950 text-3xl font-black uppercase text-white shadow-lg">
-              {initials}
+              {
+                initials
+              }
             </div>
 
             <h2 className="mt-4 text-xl font-black text-slate-950">
@@ -428,7 +477,9 @@ export function ProfileForm() {
             )}
 
             <p className="mt-4 break-all text-sm text-slate-500">
-              {email}
+              {
+                email
+              }
             </p>
           </div>
         </section>
@@ -440,7 +491,9 @@ export function ProfileForm() {
             </p>
 
             <p className="mt-2 text-4xl font-black tracking-tight text-slate-950">
-              {gameCount}
+              {
+                gameCount
+              }
             </p>
 
             <p className="mt-1 text-sm text-slate-500">
@@ -454,7 +507,9 @@ export function ProfileForm() {
             </p>
 
             <p className="mt-2 font-bold text-slate-950">
-              {joinedDate}
+              {
+                joinedDate
+              }
             </p>
 
             <p className="mt-1 text-sm text-slate-500">
@@ -478,9 +533,15 @@ export function ProfileForm() {
         )}
       </aside>
 
+      {/* RIGHT COLUMN */}
+
       <div className="space-y-8">
+        {/* PROFILE INFORMATION */}
+
         <form
-          onSubmit={handleSubmit}
+          onSubmit={
+            handleSubmit
+          }
           className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8"
         >
           <div className="border-b border-slate-100 pb-6">
@@ -508,7 +569,9 @@ export function ProfileForm() {
 
               <input
                 type="text"
-                value={username}
+                value={
+                  username
+                }
                 onChange={(
                   event,
                 ) =>
@@ -517,7 +580,9 @@ export function ProfileForm() {
                       .value,
                   )
                 }
-                maxLength={30}
+                maxLength={
+                  30
+                }
                 placeholder="Your Username"
                 className="h-12 rounded-xl border border-slate-300 bg-white px-4 text-slate-950 outline-none placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
               />
@@ -536,7 +601,9 @@ export function ProfileForm() {
 
               <input
                 type="text"
-                value={displayName}
+                value={
+                  displayName
+                }
                 onChange={(
                   event,
                 ) =>
@@ -545,15 +612,16 @@ export function ProfileForm() {
                       .value,
                   )
                 }
-                maxLength={80}
+                maxLength={
+                  80
+                }
                 placeholder="Your Name"
                 className="h-12 rounded-xl border border-slate-300 bg-white px-4 text-slate-950 outline-none placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
               />
 
               <span className="text-xs text-slate-500">
-                This can be your
-                real name or gamer
-                name.
+                This can be your real
+                name or gamer name.
               </span>
             </label>
           </div>
@@ -582,14 +650,20 @@ export function ProfileForm() {
               </option>
 
               {platforms.map(
-                (platform) => (
+                (
+                  platform,
+                ) => (
                   <option
-                    key={platform}
+                    key={
+                      platform
+                    }
                     value={
                       platform
                     }
                   >
-                    {platform}
+                    {
+                      platform
+                    }
                   </option>
                 ),
               )}
@@ -603,13 +677,17 @@ export function ProfileForm() {
               </span>
 
               <span className="text-xs font-semibold text-slate-400">
-                {bio.length}
+                {
+                  bio.length
+                }
                 /300
               </span>
             </div>
 
             <textarea
-              value={bio}
+              value={
+                bio
+              }
               onChange={(
                 event,
               ) =>
@@ -619,7 +697,9 @@ export function ProfileForm() {
                 )
               }
               rows={6}
-              maxLength={300}
+              maxLength={
+                300
+              }
               placeholder="Tell us about your game collection, favourite games or what you're currently playing..."
               className="w-full resize-y rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-950 outline-none placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
             />
@@ -627,20 +707,26 @@ export function ProfileForm() {
 
           {errorMessage && (
             <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
-              {errorMessage}
+              {
+                errorMessage
+              }
             </div>
           )}
 
           {successMessage && (
             <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
-              {successMessage}
+              {
+                successMessage
+              }
             </div>
           )}
 
           <div className="mt-8 flex items-center justify-end border-t border-slate-100 pt-6">
             <button
               type="submit"
-              disabled={isSaving}
+              disabled={
+                isSaving
+              }
               className="rounded-xl bg-indigo-600 px-6 py-3 font-bold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-indigo-300"
             >
               {isSaving
@@ -649,6 +735,12 @@ export function ProfileForm() {
             </button>
           </div>
         </form>
+
+        {/* PUBLIC LIBRARY */}
+
+        <PublicProfileSettings />
+
+        {/* DELETE ACCOUNT */}
 
         <section className="rounded-3xl border border-red-200 bg-white p-6 shadow-sm sm:p-8">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-red-600">
@@ -702,7 +794,9 @@ export function ProfileForm() {
 
             {deleteError && (
               <div className="mt-4 rounded-xl border border-red-200 bg-white px-4 py-3 text-sm font-semibold text-red-700">
-                {deleteError}
+                {
+                  deleteError
+                }
               </div>
             )}
 

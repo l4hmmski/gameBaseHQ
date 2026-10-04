@@ -6,8 +6,14 @@ import {
   useState,
 } from "react";
 
+import {
+  track,
+} from "@vercel/analytics";
+
 import { GameCard } from "@/components/game-card";
 import { GameForm } from "@/components/game-form";
+import { LibraryStats } from "@/components/library-stats";
+
 import { supabase } from "@/lib/supabase";
 
 import type {
@@ -151,19 +157,13 @@ export function GameLibrary() {
       !userData.user
     ) {
       return {
-        success: false,
+        success:
+          false,
+
         error:
           "You must be logged in to add a game.",
       };
     }
-
-    /*
-      Check for an existing copy before
-      attempting the insert.
-
-      Same game + same platform = duplicate.
-      Same game + different platform = allowed.
-    */
 
     let duplicateQuery =
       supabase
@@ -198,6 +198,7 @@ export function GameLibrary() {
     const {
       data:
         duplicateGame,
+
       error:
         duplicateError,
     } =
@@ -214,7 +215,9 @@ export function GameLibrary() {
       );
 
       return {
-        success: false,
+        success:
+          false,
+
         error:
           "The game could not be checked before saving.",
       };
@@ -224,7 +227,9 @@ export function GameLibrary() {
       duplicateGame
     ) {
       return {
-        success: false,
+        success:
+          false,
+
         error:
           `${newGame.title} is already in your library on ${newGame.platform}.`,
       };
@@ -293,14 +298,18 @@ export function GameLibrary() {
         "23505"
       ) {
         return {
-          success: false,
+          success:
+            false,
+
           error:
             `${newGame.title} is already in your library on ${newGame.platform}.`,
         };
       }
 
       return {
-        success: false,
+        success:
+          false,
+
         error:
           "The game could not be saved.",
       };
@@ -315,14 +324,29 @@ export function GameLibrary() {
       ],
     );
 
+    track(
+      "Game Added",
+      {
+        platform:
+          newGame.platform,
+
+        wishlist:
+          newGame.is_wishlist,
+      },
+    );
+
     return {
-      success: true,
+      success:
+        true,
     };
   }
 
   async function updateGame(
-    gameId: string,
-    updates: GameUpdates,
+    gameId:
+      string,
+
+    updates:
+      GameUpdates,
   ): Promise<UpdateGameResult> {
     setError("");
 
@@ -357,14 +381,18 @@ export function GameLibrary() {
         "23505"
       ) {
         return {
-          success: false,
+          success:
+            false,
+
           error:
             "You already have this game on that platform.",
         };
       }
 
       return {
-        success: false,
+        success:
+          false,
+
         error:
           "Your changes could not be saved.",
       };
@@ -384,7 +412,8 @@ export function GameLibrary() {
     );
 
     return {
-      success: true,
+      success:
+        true,
     };
   }
 
@@ -408,9 +437,7 @@ export function GameLibrary() {
         deleteError,
     } =
       await supabase
-        .from(
-          "games",
-        )
+        .from("games")
         .delete()
         .eq(
           "id",
@@ -436,9 +463,7 @@ export function GameLibrary() {
         currentGames,
       ) =>
         currentGames.filter(
-          (
-            game,
-          ) =>
+          (game) =>
             game.id !==
             gameId,
         ),
@@ -454,9 +479,7 @@ export function GameLibrary() {
 
       const filteredGames =
         games.filter(
-          (
-            game,
-          ) => {
+          (game) => {
             const publisher =
               game.publisher ??
               "";
@@ -588,6 +611,12 @@ export function GameLibrary() {
 
   return (
     <section className="space-y-8">
+      <LibraryStats
+        games={
+          games
+        }
+      />
+
       <GameForm
         onAddGame={
           addGame
@@ -608,8 +637,7 @@ export function GameLibrary() {
                 event,
               ) =>
                 setSearch(
-                  event
-                    .target
+                  event.target
                     .value,
                 )
               }
@@ -629,8 +657,7 @@ export function GameLibrary() {
                 event,
               ) =>
                 setFilter(
-                  event
-                    .target
+                  event.target
                     .value as FilterOption,
                 )
               }
@@ -669,8 +696,7 @@ export function GameLibrary() {
                 event,
               ) =>
                 setSortOrder(
-                  event
-                    .target
+                  event.target
                     .value,
                 )
               }
@@ -717,16 +743,6 @@ export function GameLibrary() {
               : " Games"}
           </h2>
         </div>
-
-        <p className="hidden text-sm font-semibold text-slate-500 sm:block">
-          {
-            games.filter(
-              (game) =>
-                game.is_wishlist,
-            ).length
-          }{" "}
-          Wishlist
-        </p>
       </div>
 
       {error && (
@@ -745,9 +761,7 @@ export function GameLibrary() {
         0 ? (
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {visibleGames.map(
-            (
-              game,
-            ) => (
+            (game) => (
               <GameCard
                 key={
                   game.id

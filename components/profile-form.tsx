@@ -6,6 +6,10 @@ import {
   useState,
 } from "react";
 
+import {
+  useRouter,
+} from "next/navigation";
+
 import { supabase } from "@/lib/supabase";
 import { Profile } from "@/types/profile";
 
@@ -17,6 +21,9 @@ const platforms = [
 ];
 
 export function ProfileForm() {
+  const router =
+    useRouter();
+
   const [userId, setUserId] =
     useState("");
 
@@ -52,6 +59,16 @@ export function ProfileForm() {
     useState(false);
 
   const [
+    isDeleting,
+    setIsDeleting,
+  ] = useState(false);
+
+  const [
+    deleteConfirmation,
+    setDeleteConfirmation,
+  ] = useState("");
+
+  const [
     errorMessage,
     setErrorMessage,
   ] = useState("");
@@ -59,6 +76,11 @@ export function ProfileForm() {
   const [
     successMessage,
     setSuccessMessage,
+  ] = useState("");
+
+  const [
+    deleteError,
+    setDeleteError,
   ] = useState("");
 
   useEffect(() => {
@@ -70,19 +92,26 @@ export function ProfileForm() {
         data: { user },
         error: userError,
       } =
-        await supabase.auth.getUser();
+        await supabase.auth
+          .getUser();
 
-      if (userError || !user) {
+      if (
+        userError ||
+        !user
+      ) {
         setErrorMessage(
           "You must be logged in to view your profile.",
         );
 
         setIsLoading(false);
+
         return;
       }
 
       setUserId(user.id);
-      setEmail(user.email ?? "");
+      setEmail(
+        user.email ?? "",
+      );
 
       const {
         data,
@@ -106,6 +135,7 @@ export function ProfileForm() {
         );
 
         setIsLoading(false);
+
         return;
       }
 
@@ -117,14 +147,18 @@ export function ProfileForm() {
       );
 
       setDisplayName(
-        profile.display_name ?? "",
+        profile.display_name ??
+          "",
       );
 
       setFavouritePlatform(
-        profile.favourite_platform ?? "",
+        profile.favourite_platform ??
+          "",
       );
 
-      setBio(profile.bio ?? "");
+      setBio(
+        profile.bio ?? "",
+      );
 
       setJoinedDate(
         new Intl.DateTimeFormat(
@@ -157,10 +191,14 @@ export function ProfileForm() {
         );
 
         setIsLoading(false);
+
         return;
       }
 
-      setGameCount(count ?? 0);
+      setGameCount(
+        count ?? 0,
+      );
+
       setIsLoading(false);
     }
 
@@ -211,7 +249,8 @@ export function ProfileForm() {
         .from("profiles")
         .update({
           username:
-            cleanUsername || null,
+            cleanUsername ||
+            null,
 
           display_name:
             displayName.trim() ||
@@ -222,14 +261,21 @@ export function ProfileForm() {
             null,
 
           bio:
-            bio.trim() || null,
+            bio.trim() ||
+            null,
         })
-        .eq("id", userId);
+        .eq(
+          "id",
+          userId,
+        );
 
     setIsSaving(false);
 
     if (error) {
-      if (error.code === "23505") {
+      if (
+        error.code ===
+        "23505"
+      ) {
         setErrorMessage(
           "That username is already being used.",
         );
@@ -237,21 +283,113 @@ export function ProfileForm() {
         return;
       }
 
-      setErrorMessage(error.message);
+      console.error(
+        "Profile update failed:",
+        error,
+      );
+
+      setErrorMessage(
+        "Your profile could not be updated.",
+      );
+
       return;
     }
 
-    setUsername(cleanUsername);
+    setUsername(
+      cleanUsername,
+    );
 
     setSuccessMessage(
       "Your profile has been updated.",
     );
   }
 
+  async function handleDeleteAccount() {
+    setDeleteError("");
+
+    if (
+      deleteConfirmation !==
+      "DELETE"
+    ) {
+      setDeleteError(
+        'Type "DELETE" to confirm account deletion.',
+      );
+
+      return;
+    }
+
+    setIsDeleting(true);
+
+    try {
+      const response =
+        await fetch(
+          "/api/account/delete",
+          {
+            method:
+              "DELETE",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+                confirmation:
+                  deleteConfirmation,
+              }),
+          },
+        );
+
+      const data =
+        (await response.json()) as {
+          success?: boolean;
+          error?: string;
+        };
+
+      if (
+        !response.ok ||
+        !data.success
+      ) {
+        setDeleteError(
+          data.error ??
+            "Your account could not be deleted.",
+        );
+
+        return;
+      }
+
+      await supabase.auth
+        .signOut({
+          scope: "local",
+        });
+
+      router.push("/");
+      router.refresh();
+    } catch (error) {
+      console.error(
+        "Account deletion request failed:",
+        error,
+      );
+
+      setDeleteError(
+        "Your account could not be deleted. Please try again.",
+      );
+    } finally {
+      setIsDeleting(false);
+    }
+  }
+
   const initials =
-    displayName.trim().charAt(0) ||
-    username.trim().charAt(0) ||
-    email.trim().charAt(0) ||
+    displayName
+      .trim()
+      .charAt(0) ||
+    username
+      .trim()
+      .charAt(0) ||
+    email
+      .trim()
+      .charAt(0) ||
     "G";
 
   if (isLoading) {
@@ -332,158 +470,261 @@ export function ProfileForm() {
             </p>
 
             <p className="mt-2 text-lg font-black text-indigo-950">
-              {favouritePlatform}
+              {
+                favouritePlatform
+              }
             </p>
           </section>
         )}
       </aside>
 
-      <form
-        onSubmit={handleSubmit}
-        className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8"
-      >
-        <div className="border-b border-slate-100 pb-6">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-600">
-            Account Details
+      <div className="space-y-8">
+        <form
+          onSubmit={handleSubmit}
+          className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8"
+        >
+          <div className="border-b border-slate-100 pb-6">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-600">
+              Account Details
+            </p>
+
+            <h2 className="mt-2 text-2xl font-black tracking-tight text-slate-950">
+              Profile Information
+            </h2>
+
+            <p className="mt-2 max-w-2xl leading-7 text-slate-600">
+              Update the information
+              shown on your account and
+              choose your gaming
+              preferences.
+            </p>
+          </div>
+
+          <div className="mt-7 grid gap-6 sm:grid-cols-2">
+            <label className="grid gap-2">
+              <span className="text-sm font-bold text-slate-800">
+                Username
+              </span>
+
+              <input
+                type="text"
+                value={username}
+                onChange={(
+                  event,
+                ) =>
+                  setUsername(
+                    event.target
+                      .value,
+                  )
+                }
+                maxLength={30}
+                placeholder="Your Username"
+                className="h-12 rounded-xl border border-slate-300 bg-white px-4 text-slate-950 outline-none placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+              />
+
+              <span className="text-xs text-slate-500">
+                Letters, numbers,
+                underscores and
+                hyphens.
+              </span>
+            </label>
+
+            <label className="grid gap-2">
+              <span className="text-sm font-bold text-slate-800">
+                Display Name
+              </span>
+
+              <input
+                type="text"
+                value={displayName}
+                onChange={(
+                  event,
+                ) =>
+                  setDisplayName(
+                    event.target
+                      .value,
+                  )
+                }
+                maxLength={80}
+                placeholder="Your Name"
+                className="h-12 rounded-xl border border-slate-300 bg-white px-4 text-slate-950 outline-none placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+              />
+
+              <span className="text-xs text-slate-500">
+                This can be your
+                real name or gamer
+                name.
+              </span>
+            </label>
+          </div>
+
+          <label className="mt-6 grid gap-2">
+            <span className="text-sm font-bold text-slate-800">
+              Favourite Platform
+            </span>
+
+            <select
+              value={
+                favouritePlatform
+              }
+              onChange={(
+                event,
+              ) =>
+                setFavouritePlatform(
+                  event.target
+                    .value,
+                )
+              }
+              className="h-12 rounded-xl border border-slate-300 bg-white px-4 text-slate-950 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+            >
+              <option value="">
+                Select a Platform
+              </option>
+
+              {platforms.map(
+                (platform) => (
+                  <option
+                    key={platform}
+                    value={
+                      platform
+                    }
+                  >
+                    {platform}
+                  </option>
+                ),
+              )}
+            </select>
+          </label>
+
+          <label className="mt-6 grid gap-2">
+            <div className="flex items-center justify-between gap-4">
+              <span className="text-sm font-bold text-slate-800">
+                Bio
+              </span>
+
+              <span className="text-xs font-semibold text-slate-400">
+                {bio.length}
+                /300
+              </span>
+            </div>
+
+            <textarea
+              value={bio}
+              onChange={(
+                event,
+              ) =>
+                setBio(
+                  event.target
+                    .value,
+                )
+              }
+              rows={6}
+              maxLength={300}
+              placeholder="Tell us about your game collection, favourite games or what you're currently playing..."
+              className="w-full resize-y rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-950 outline-none placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+            />
+          </label>
+
+          {errorMessage && (
+            <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+              {errorMessage}
+            </div>
+          )}
+
+          {successMessage && (
+            <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
+              {successMessage}
+            </div>
+          )}
+
+          <div className="mt-8 flex items-center justify-end border-t border-slate-100 pt-6">
+            <button
+              type="submit"
+              disabled={isSaving}
+              className="rounded-xl bg-indigo-600 px-6 py-3 font-bold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-indigo-300"
+            >
+              {isSaving
+                ? "Saving..."
+                : "Save Profile"}
+            </button>
+          </div>
+        </form>
+
+        <section className="rounded-3xl border border-red-200 bg-white p-6 shadow-sm sm:p-8">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-red-600">
+            Danger Zone
           </p>
 
           <h2 className="mt-2 text-2xl font-black tracking-tight text-slate-950">
-            Profile Information
+            Delete Account
           </h2>
 
-          <p className="mt-2 max-w-2xl leading-7 text-slate-600">
-            Update the information shown
-            on your account and choose
-            your gaming preferences.
+          <p className="mt-3 max-w-2xl leading-7 text-slate-600">
+            Permanently delete your
+            Game Library account,
+            profile and every game in
+            your library.
           </p>
-        </div>
 
-        <div className="mt-7 grid gap-6 sm:grid-cols-2">
-          <label className="grid gap-2">
-            <span className="text-sm font-bold text-slate-800">
-              Username
-            </span>
+          <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-5">
+            <p className="font-bold text-red-800">
+              This action cannot be
+              undone.
+            </p>
 
-            <input
-              type="text"
-              value={username}
-              onChange={(event) =>
-                setUsername(
-                  event.target.value,
-                )
-              }
-              placeholder="Your Username"
-              className="h-12 rounded-xl border border-slate-300 bg-white px-4 text-slate-950 outline-none placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
-            />
-
-            <span className="text-xs text-slate-500">
-              Letters, numbers,
-              underscores and hyphens.
-            </span>
-          </label>
-
-          <label className="grid gap-2">
-            <span className="text-sm font-bold text-slate-800">
-              Display Name
-            </span>
+            <p className="mt-2 text-sm leading-6 text-red-700">
+              Type{" "}
+              <span className="font-black">
+                DELETE
+              </span>{" "}
+              below to confirm that
+              you want to permanently
+              remove your account.
+            </p>
 
             <input
               type="text"
-              value={displayName}
-              onChange={(event) =>
-                setDisplayName(
-                  event.target.value,
+              value={
+                deleteConfirmation
+              }
+              onChange={(
+                event,
+              ) =>
+                setDeleteConfirmation(
+                  event.target
+                    .value,
                 )
               }
-              placeholder="Your Name"
-              className="h-12 rounded-xl border border-slate-300 bg-white px-4 text-slate-950 outline-none placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+              autoComplete="off"
+              placeholder='Type "DELETE"'
+              className="mt-4 h-12 w-full max-w-sm rounded-xl border border-red-300 bg-white px-4 font-semibold text-slate-950 outline-none placeholder:text-slate-400 focus:border-red-500 focus:ring-4 focus:ring-red-100"
             />
 
-            <span className="text-xs text-slate-500">
-              This can be your real name
-              or gamer name.
-            </span>
-          </label>
-        </div>
-
-        <label className="mt-6 grid gap-2">
-          <span className="text-sm font-bold text-slate-800">
-            Favourite Platform
-          </span>
-
-          <select
-            value={favouritePlatform}
-            onChange={(event) =>
-              setFavouritePlatform(
-                event.target.value,
-              )
-            }
-            className="h-12 rounded-xl border border-slate-300 bg-white px-4 text-slate-950 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
-          >
-            <option value="">
-              Select a Platform
-            </option>
-
-            {platforms.map(
-              (platform) => (
-                <option
-                  key={platform}
-                  value={platform}
-                >
-                  {platform}
-                </option>
-              ),
+            {deleteError && (
+              <div className="mt-4 rounded-xl border border-red-200 bg-white px-4 py-3 text-sm font-semibold text-red-700">
+                {deleteError}
+              </div>
             )}
-          </select>
-        </label>
 
-        <label className="mt-6 grid gap-2">
-          <div className="flex items-center justify-between gap-4">
-            <span className="text-sm font-bold text-slate-800">
-              Bio
-            </span>
-
-            <span className="text-xs font-semibold text-slate-400">
-              {bio.length}/300
-            </span>
+            <button
+              type="button"
+              onClick={
+                handleDeleteAccount
+              }
+              disabled={
+                isDeleting ||
+                deleteConfirmation !==
+                  "DELETE"
+              }
+              className="mt-4 rounded-xl bg-red-600 px-6 py-3 font-bold text-white shadow-sm transition hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-red-300"
+            >
+              {isDeleting
+                ? "Deleting Account..."
+                : "Permanently Delete Account"}
+            </button>
           </div>
-
-          <textarea
-            value={bio}
-            onChange={(event) =>
-              setBio(event.target.value)
-            }
-            rows={6}
-            maxLength={300}
-            placeholder="Tell us about your game collection, favourite games or what you're currently playing..."
-            className="w-full resize-y rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-950 outline-none placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
-          />
-        </label>
-
-        {errorMessage && (
-          <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
-            {errorMessage}
-          </div>
-        )}
-
-        {successMessage && (
-          <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
-            {successMessage}
-          </div>
-        )}
-
-        <div className="mt-8 flex items-center justify-end border-t border-slate-100 pt-6">
-          <button
-            type="submit"
-            disabled={isSaving}
-            className="rounded-xl bg-indigo-600 px-6 py-3 font-bold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-indigo-300"
-          >
-            {isSaving
-              ? "Saving..."
-              : "Save Profile"}
-          </button>
-        </div>
-      </form>
+        </section>
+      </div>
     </div>
   );
 }

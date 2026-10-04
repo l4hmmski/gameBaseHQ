@@ -9,8 +9,23 @@ type TwitchTokenResponse = {
   token_type: string;
 };
 
+type IgdbCompany = {
+  name?: string;
+};
+
+type IgdbInvolvedCompany = {
+  publisher?: boolean;
+
+  company?: IgdbCompany;
+};
+
+type IgdbGenre = {
+  name?: string;
+};
+
 type IgdbGame = {
   id: number;
+
   name: string;
 
   cover?: {
@@ -18,6 +33,14 @@ type IgdbGame = {
   };
 
   first_release_date?: number;
+
+  rating?: number;
+
+  total_rating?: number;
+
+  genres?: IgdbGenre[];
+
+  involved_companies?: IgdbInvolvedCompany[];
 };
 
 type CachedToken = {
@@ -31,10 +54,15 @@ type RateLimitEntry = {
 };
 
 const RATE_LIMIT = 30;
-const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+
+const RATE_LIMIT_WINDOW_MS =
+  60 * 1000;
 
 const rateLimitStore =
-  new Map<string, RateLimitEntry>();
+  new Map<
+    string,
+    RateLimitEntry
+  >();
 
 let cachedToken: CachedToken | null =
   null;
@@ -71,10 +99,12 @@ function checkRateLimit(
 
   if (
     !existingEntry ||
-    now >= existingEntry.resetAt
+    now >=
+      existingEntry.resetAt
   ) {
     const newEntry = {
       count: 1,
+
       resetAt:
         now +
         RATE_LIMIT_WINDOW_MS,
@@ -87,8 +117,10 @@ function checkRateLimit(
 
     return {
       allowed: true,
+
       remaining:
         RATE_LIMIT - 1,
+
       resetAt:
         newEntry.resetAt,
     };
@@ -100,7 +132,9 @@ function checkRateLimit(
   ) {
     return {
       allowed: false,
+
       remaining: 0,
+
       resetAt:
         existingEntry.resetAt,
     };
@@ -115,33 +149,43 @@ function checkRateLimit(
 
   return {
     allowed: true,
+
     remaining:
       RATE_LIMIT -
       existingEntry.count,
+
     resetAt:
       existingEntry.resetAt,
   };
 }
 
 function cleanupExpiredRateLimits() {
-  const now = Date.now();
+  const now =
+    Date.now();
 
   for (const [
     ip,
     entry,
   ] of rateLimitStore.entries()) {
-    if (now >= entry.resetAt) {
-      rateLimitStore.delete(ip);
+    if (
+      now >=
+      entry.resetAt
+    ) {
+      rateLimitStore.delete(
+        ip,
+      );
     }
   }
 }
 
 function getIgdbCredentials() {
   const clientId =
-    process.env.IGDB_CLIENT_ID;
+    process.env
+      .IGDB_CLIENT_ID;
 
   const clientSecret =
-    process.env.IGDB_CLIENT_SECRET;
+    process.env
+      .IGDB_CLIENT_SECRET;
 
   if (
     !clientId ||
@@ -172,27 +216,35 @@ async function getAccessToken() {
     clientSecret,
   } = getIgdbCredentials();
 
-  const response = await fetch(
-    "https://id.twitch.tv/oauth2/token",
-    {
-      method: "POST",
+  const response =
+    await fetch(
+      "https://id.twitch.tv/oauth2/token",
+      {
+        method: "POST",
 
-      headers: {
-        "Content-Type":
-          "application/x-www-form-urlencoded",
+        headers: {
+          "Content-Type":
+            "application/x-www-form-urlencoded",
+        },
+
+        body:
+          new URLSearchParams(
+            {
+              client_id:
+                clientId,
+
+              client_secret:
+                clientSecret,
+
+              grant_type:
+                "client_credentials",
+            },
+          ),
+
+        cache:
+          "no-store",
       },
-
-      body: new URLSearchParams({
-        client_id: clientId,
-        client_secret:
-          clientSecret,
-        grant_type:
-          "client_credentials",
-      }),
-
-      cache: "no-store",
-    },
-  );
+    );
 
   if (!response.ok) {
     const responseText =
@@ -227,8 +279,14 @@ function escapeIgdbSearchText(
   value: string,
 ) {
   return value
-    .replace(/\\/g, "\\\\")
-    .replace(/"/g, '\\"');
+    .replace(
+      /\\/g,
+      "\\\\",
+    )
+    .replace(
+      /"/g,
+      '\\"',
+    );
 }
 
 export async function GET(
@@ -237,12 +295,16 @@ export async function GET(
   cleanupExpiredRateLimits();
 
   const ip =
-    getClientIp(request);
+    getClientIp(
+      request,
+    );
 
   const rateLimit =
     checkRateLimit(ip);
 
-  if (!rateLimit.allowed) {
+  if (
+    !rateLimit.allowed
+  ) {
     const retryAfterSeconds =
       Math.max(
         Math.ceil(
@@ -257,6 +319,7 @@ export async function GET(
       {
         error:
           "Too many searches. Please wait a moment and try again.",
+
         games: [],
       },
       {
@@ -282,62 +345,39 @@ export async function GET(
       ?.trim();
 
   if (!query) {
-    return NextResponse.json(
-      {
-        games: [],
-      },
-      {
-        headers: {
-          "X-RateLimit-Limit":
-            RATE_LIMIT.toString(),
-
-          "X-RateLimit-Remaining":
-            rateLimit.remaining.toString(),
-        },
-      },
-    );
+    return NextResponse.json({
+      games: [],
+    });
   }
 
-  if (query.length < 2) {
-    return NextResponse.json(
-      {
-        games: [],
-      },
-      {
-        headers: {
-          "X-RateLimit-Limit":
-            RATE_LIMIT.toString(),
-
-          "X-RateLimit-Remaining":
-            rateLimit.remaining.toString(),
-        },
-      },
-    );
+  if (
+    query.length < 2
+  ) {
+    return NextResponse.json({
+      games: [],
+    });
   }
 
-  if (query.length > 100) {
+  if (
+    query.length > 100
+  ) {
     return NextResponse.json(
       {
         error:
           "Search text is too long.",
+
         games: [],
       },
       {
         status: 400,
-
-        headers: {
-          "X-RateLimit-Limit":
-            RATE_LIMIT.toString(),
-
-          "X-RateLimit-Remaining":
-            rateLimit.remaining.toString(),
-        },
       },
     );
   }
 
   try {
-    const { clientId } =
+    const {
+      clientId,
+    } =
       getIgdbCredentials();
 
     const accessToken =
@@ -370,11 +410,21 @@ export async function GET(
 
           body: `
             search "${safeQuery}";
-            fields id,name,cover.image_id,first_release_date;
+            fields
+              id,
+              name,
+              cover.image_id,
+              first_release_date,
+              rating,
+              total_rating,
+              genres.name,
+              involved_companies.publisher,
+              involved_companies.company.name;
             limit 8;
           `,
 
-          cache: "no-store",
+          cache:
+            "no-store",
         },
       );
 
@@ -401,22 +451,80 @@ export async function GET(
 
           const coverUrl =
             imageId
-              ? `https://images.igdb.com/igdb/image/upload/t_cover_small_2x/${imageId}.jpg`
+              ? `https://images.igdb.com/igdb/image/upload/t_cover_big_2x/${imageId}.jpg`
               : null;
 
-          const year =
+          const releaseDate =
             game.first_release_date
               ? new Date(
                   game.first_release_date *
                     1000,
-                ).getFullYear()
+                )
+                  .toISOString()
+                  .slice(
+                    0,
+                    10,
+                  )
+              : null;
+
+          const publisher =
+            game.involved_companies
+              ?.find(
+                (
+                  involvedCompany,
+                ) =>
+                  involvedCompany.publisher &&
+                  involvedCompany
+                    .company
+                    ?.name,
+              )
+              ?.company?.name ??
+            null;
+
+          const genres =
+            game.genres
+              ?.map(
+                (genre) =>
+                  genre.name,
+              )
+              .filter(
+                (
+                  genreName,
+                ): genreName is string =>
+                  Boolean(
+                    genreName,
+                  ),
+              ) ??
+            [];
+
+          const rawRating =
+            game.total_rating ??
+            game.rating ??
+            null;
+
+          const rating =
+            rawRating !== null
+              ? Math.round(
+                  rawRating,
+                )
               : null;
 
           return {
-            id: game.id,
-            title: game.name,
+            id:
+              game.id,
+
+            title:
+              game.name,
+
             coverUrl,
-            year,
+
+            releaseDate,
+
+            publisher,
+
+            genres,
+
+            rating,
           };
         },
       );
@@ -446,18 +554,11 @@ export async function GET(
       {
         error:
           "Game search could not be completed.",
+
         games: [],
       },
       {
         status: 502,
-
-        headers: {
-          "X-RateLimit-Limit":
-            RATE_LIMIT.toString(),
-
-          "X-RateLimit-Remaining":
-            rateLimit.remaining.toString(),
-        },
       },
     );
   }

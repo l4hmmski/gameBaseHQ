@@ -5,7 +5,10 @@ import type {
 
 type GameCardProps = {
   game: Game;
-  onDelete: (id: string) => void;
+
+  onDelete: (
+    id: string,
+  ) => void;
 };
 
 const statusStyles: Record<
@@ -22,24 +25,63 @@ const statusStyles: Record<
     "bg-emerald-100 text-emerald-800",
 };
 
+function formatReleaseDate(
+  releaseDate:
+    | string
+    | null,
+) {
+  if (
+    !releaseDate
+  ) {
+    return "Unknown";
+  }
+
+  return new Intl.DateTimeFormat(
+    "en-AU",
+    {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    },
+  ).format(
+    new Date(
+      `${releaseDate}T00:00:00`,
+    ),
+  );
+}
+
 export function GameCard({
   game,
   onDelete,
 }: GameCardProps) {
+  const genreText =
+    game.genres &&
+    game.genres.length >
+      0
+      ? game.genres.join(
+          " • ",
+        )
+      : "Unknown";
+
   return (
-    <article className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
+    <article className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg">
+      {/* COVER */}
       <div className="relative aspect-[3/4] overflow-hidden bg-gradient-to-br from-indigo-600 to-violet-800">
         {game.cover_url ? (
           <img
-            src={game.cover_url}
+            src={
+              game.cover_url
+            }
             alt={`${game.title} cover`}
             loading="lazy"
             className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
           />
         ) : (
-          <div className="flex h-full items-center justify-center p-6 text-center">
-            <span className="text-3xl font-black text-white">
-              {game.title}
+          <div className="flex h-full items-center justify-center p-5 text-center">
+            <span className="text-2xl font-black text-white">
+              {
+                game.title
+              }
             </span>
           </div>
         )}
@@ -47,26 +89,91 @@ export function GameCard({
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent" />
 
         <span
-          className={`absolute bottom-4 left-4 rounded-full px-3 py-1 text-xs font-bold ${statusStyles[game.status]}`}
+          className={`absolute bottom-3 left-3 rounded-full px-3 py-1 text-xs font-bold ${statusStyles[game.status]}`}
         >
-          {game.status}
+          {
+            game.status
+          }
         </span>
       </div>
 
-      <div className="p-5">
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-indigo-600">
-          {game.platform}
+      {/* DETAILS */}
+      <div className="p-4">
+        <p className="text-xs font-bold uppercase tracking-[0.14em] text-indigo-600">
+          {
+            game.platform
+          }
         </p>
 
-        <h2 className="mt-2 text-xl font-bold tracking-tight text-slate-950">
-          {game.title}
+        <h2 className="mt-2 line-clamp-2 text-lg font-black leading-snug tracking-tight text-slate-950">
+          {
+            game.title
+          }
         </h2>
 
-        <div className="mt-5 border-t border-slate-100 pt-4">
+        {/* PUBLISHER / RELEASE */}
+        <div className="mt-3">
+          <p className="text-sm font-semibold text-slate-700">
+            {game.publisher ??
+              "Unknown Publisher"}
+          </p>
+
+          <p className="mt-1 text-xs text-slate-500">
+            Released{" "}
+            {formatReleaseDate(
+              game.release_date,
+            )}
+          </p>
+        </div>
+
+        {/* GENRE */}
+        <div className="mt-4 border-t border-slate-100 pt-3">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">
+            Genre
+          </p>
+
+          <p className="mt-1 line-clamp-2 text-sm font-semibold text-slate-700">
+            {
+              genreText
+            }
+          </p>
+        </div>
+
+        {/* RATING */}
+        <div className="mt-4 flex items-center justify-between rounded-xl bg-slate-50 px-3 py-2">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-400">
+              IGDB Rating
+            </p>
+
+            <p className="mt-1 text-lg font-black text-slate-950">
+              {game.rating !==
+              null
+                ? `${Math.round(
+                    game.rating,
+                  )}/100`
+                : "N/A"}
+            </p>
+          </div>
+
+          {game.rating !==
+            null && (
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 text-sm font-black text-indigo-700">
+              {Math.round(
+                game.rating,
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* REMOVE */}
+        <div className="mt-4 border-t border-slate-100 pt-3">
           <button
             type="button"
             onClick={() =>
-              onDelete(game.id)
+              onDelete(
+                game.id,
+              )
             }
             className="text-sm font-bold text-red-600 transition hover:text-red-800"
           >

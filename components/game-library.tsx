@@ -15,78 +15,120 @@ import type {
   GameStatus,
 } from "@/types/game";
 
-type NewGame = Omit<Game, "id">;
+type NewGame =
+  Omit<
+    Game,
+    "id"
+  >;
 
 type StatusFilter =
   | "All"
   | GameStatus;
 
 export function GameLibrary() {
-  const [games, setGames] =
-    useState<Game[]>([]);
+  const [
+    games,
+    setGames,
+  ] =
+    useState<
+      Game[]
+    >([]);
 
-  const [search, setSearch] =
-    useState("");
+  const [
+    search,
+    setSearch,
+  ] = useState("");
 
   const [
     statusFilter,
     setStatusFilter,
   ] =
-    useState<StatusFilter>("All");
+    useState<StatusFilter>(
+      "All",
+    );
 
-  const [sortOrder, setSortOrder] =
-    useState("title-ascending");
+  const [
+    sortOrder,
+    setSortOrder,
+  ] =
+    useState(
+      "title-ascending",
+    );
 
-  const [isLoading, setIsLoading] =
+  const [
+    isLoading,
+    setIsLoading,
+  ] =
     useState(true);
 
-  const [error, setError] =
-    useState("");
+  const [
+    error,
+    setError,
+  ] = useState("");
 
   useEffect(() => {
     async function loadGames() {
       const {
         data,
-        error: loadError,
+        error:
+          loadError,
       } = await supabase
-        .from("games")
-        .select(
-          "id, title, platform, status, cover_url",
+        .from(
+          "games",
         )
-        .order("created_at", {
-          ascending: false,
-        });
+        .select(
+          "id, title, platform, status, cover_url, publisher, release_date, genres, rating",
+        )
+        .order(
+          "created_at",
+          {
+            ascending:
+              false,
+          },
+        );
 
-      if (loadError) {
-        console.error(loadError);
+      if (
+        loadError
+      ) {
+        console.error(
+          loadError,
+        );
 
         setError(
           "Your games could not be loaded.",
         );
 
-        setIsLoading(false);
+        setIsLoading(
+          false,
+        );
 
         return;
       }
 
       setGames(
-        (data ?? []) as Game[],
+        (data ??
+          []) as Game[],
       );
 
-      setIsLoading(false);
+      setIsLoading(
+        false,
+      );
     }
 
     void loadGames();
   }, []);
 
   async function addGame(
-    newGame: NewGame,
+    newGame:
+      NewGame,
   ) {
     setError("");
 
     const {
-      data: userData,
-      error: userError,
+      data:
+        userData,
+      error:
+        userError,
     } =
       await supabase.auth.getUser();
 
@@ -103,26 +145,49 @@ export function GameLibrary() {
 
     const {
       data,
-      error: insertError,
+      error:
+        insertError,
     } = await supabase
-      .from("games")
+      .from(
+        "games",
+      )
       .insert({
-        title: newGame.title,
+        title:
+          newGame.title,
+
         platform:
           newGame.platform,
+
         status:
           newGame.status,
+
         cover_url:
           newGame.cover_url,
+
+        publisher:
+          newGame.publisher,
+
+        release_date:
+          newGame.release_date,
+
+        genres:
+          newGame.genres,
+
+        rating:
+          newGame.rating,
+
         user_id:
-          userData.user.id,
+          userData
+            .user.id,
       })
       .select(
-        "id, title, platform, status, cover_url",
+        "id, title, platform, status, cover_url, publisher, release_date, genres, rating",
       )
       .single();
 
-    if (insertError) {
+    if (
+      insertError
+    ) {
       console.error(
         insertError,
       );
@@ -135,7 +200,9 @@ export function GameLibrary() {
     }
 
     setGames(
-      (currentGames) => [
+      (
+        currentGames,
+      ) => [
         data as Game,
         ...currentGames,
       ],
@@ -143,18 +210,28 @@ export function GameLibrary() {
   }
 
   async function deleteGame(
-    gameId: string,
+    gameId:
+      string,
   ) {
     setError("");
 
     const {
-      error: deleteError,
-    } = await supabase
-      .from("games")
-      .delete()
-      .eq("id", gameId);
+      error:
+        deleteError,
+    } =
+      await supabase
+        .from(
+          "games",
+        )
+        .delete()
+        .eq(
+          "id",
+          gameId,
+        );
 
-    if (deleteError) {
+    if (
+      deleteError
+    ) {
       console.error(
         deleteError,
       );
@@ -167,10 +244,15 @@ export function GameLibrary() {
     }
 
     setGames(
-      (currentGames) =>
+      (
+        currentGames,
+      ) =>
         currentGames.filter(
-          (game) =>
-            game.id !== gameId,
+          (
+            game,
+          ) =>
+            game.id !==
+            gameId,
         ),
     );
   }
@@ -184,7 +266,21 @@ export function GameLibrary() {
 
       const filteredGames =
         games.filter(
-          (game) => {
+          (
+            game,
+          ) => {
+            const publisher =
+              game.publisher ??
+              "";
+
+            const genreText =
+              (
+                game.genres ??
+                []
+              ).join(
+                " ",
+              );
+
             const matchesSearch =
               game.title
                 .toLowerCase()
@@ -192,6 +288,16 @@ export function GameLibrary() {
                   cleanSearch,
                 ) ||
               game.platform
+                .toLowerCase()
+                .includes(
+                  cleanSearch,
+                ) ||
+              publisher
+                .toLowerCase()
+                .includes(
+                  cleanSearch,
+                ) ||
+              genreText
                 .toLowerCase()
                 .includes(
                   cleanSearch,
@@ -213,7 +319,10 @@ export function GameLibrary() {
       return [
         ...filteredGames,
       ].sort(
-        (gameA, gameB) => {
+        (
+          gameA,
+          gameB,
+        ) => {
           if (
             sortOrder ===
             "title-descending"
@@ -247,7 +356,9 @@ export function GameLibrary() {
   return (
     <section className="space-y-8">
       <GameForm
-        onAddGame={addGame}
+        onAddGame={
+          addGame
+        }
       />
 
       <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -257,16 +368,19 @@ export function GameLibrary() {
 
             <input
               type="search"
-              value={search}
+              value={
+                search
+              }
               onChange={(
                 event,
-              ) => {
+              ) =>
                 setSearch(
-                  event.target
+                  event
+                    .target
                     .value,
-                );
-              }}
-              placeholder="Search by title or platform"
+                )
+              }
+              placeholder="Search by title, platform, publisher or genre"
               className="h-11 rounded-xl border border-slate-300 bg-white px-4 text-slate-950 outline-none placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
             />
           </label>
@@ -280,13 +394,14 @@ export function GameLibrary() {
               }
               onChange={(
                 event,
-              ) => {
+              ) =>
                 setStatusFilter(
-                  event.target
+                  event
+                    .target
                     .value as StatusFilter,
-                );
-              }}
-              className="h-11 rounded-xl border border-slate-300 bg-white px-4 text-slate-950 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+                )
+              }
+              className="h-11 rounded-xl border border-slate-300 bg-white px-4 text-slate-950 outline-none"
             >
               <option value="All">
                 All
@@ -310,16 +425,19 @@ export function GameLibrary() {
             Sort By
 
             <select
-              value={sortOrder}
+              value={
+                sortOrder
+              }
               onChange={(
                 event,
-              ) => {
+              ) =>
                 setSortOrder(
-                  event.target
+                  event
+                    .target
                     .value,
-                );
-              }}
-              className="h-11 rounded-xl border border-slate-300 bg-white px-4 text-slate-950 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+                )
+              }
+              className="h-11 rounded-xl border border-slate-300 bg-white px-4 text-slate-950 outline-none"
             >
               <option value="title-ascending">
                 Title A–Z
@@ -337,23 +455,21 @@ export function GameLibrary() {
         </div>
       </div>
 
-      <div className="flex items-end justify-between gap-4">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-600">
-            Your Collection
-          </p>
+      <div>
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-600">
+          Your Collection
+        </p>
 
-          <h2 className="mt-1 text-2xl font-bold text-slate-950">
-            {
-              visibleGames.length
-            }
+        <h2 className="mt-1 text-2xl font-bold text-slate-950">
+          {
+            visibleGames.length
+          }
 
-            {visibleGames.length ===
-            1
-              ? " Game"
-              : " Games"}
-          </h2>
-        </div>
+          {visibleGames.length ===
+          1
+            ? " Game"
+            : " Games"}
+        </h2>
       </div>
 
       {error && (
@@ -364,19 +480,22 @@ export function GameLibrary() {
 
       {isLoading ? (
         <div className="rounded-3xl border border-slate-200 bg-white p-12 text-center shadow-sm">
-          <p className="font-semibold text-slate-700">
-            Loading Your
-            Games...
-          </p>
+          Loading Your Games...
         </div>
       ) : visibleGames.length >
         0 ? (
-        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {visibleGames.map(
-            (game) => (
+            (
+              game,
+            ) => (
               <GameCard
-                key={game.id}
-                game={game}
+                key={
+                  game.id
+                }
+                game={
+                  game
+                }
                 onDelete={
                   deleteGame
                 }
@@ -391,9 +510,7 @@ export function GameLibrary() {
           </h2>
 
           <p className="mt-2 text-slate-600">
-            Add a game or
-            change your search
-            filters.
+            Add a game or change your search filters.
           </p>
         </div>
       )}

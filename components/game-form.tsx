@@ -12,7 +12,11 @@ import {
   GameStatus,
 } from "@/types/game";
 
-type NewGame = Omit<Game, "id">;
+type NewGame =
+  Omit<
+    Game,
+    "id"
+  >;
 
 type GameFormProps = {
   onAddGame: (
@@ -22,13 +26,31 @@ type GameFormProps = {
 
 type GameSuggestion = {
   id: number;
+
   title: string;
-  coverUrl: string | null;
-  year: number | null;
+
+  coverUrl:
+    | string
+    | null;
+
+  publisher:
+    | string
+    | null;
+
+  releaseDate:
+    | string
+    | null;
+
+  genres: string[];
+
+  rating:
+    | number
+    | null;
 };
 
 type GameSearchResponse = {
-  games: GameSuggestion[];
+  games:
+    GameSuggestion[];
 };
 
 const platforms = [
@@ -45,46 +67,67 @@ const platforms = [
 export function GameForm({
   onAddGame,
 }: GameFormProps) {
-  const [title, setTitle] =
-    useState("");
-
-  const [platform, setPlatform] =
-    useState("");
-
-  const [status, setStatus] =
-    useState<GameStatus>("Backlog");
+  const [
+    title,
+    setTitle,
+  ] = useState("");
 
   const [
-    selectedCoverUrl,
-    setSelectedCoverUrl,
-  ] = useState<string | null>(null);
+    platform,
+    setPlatform,
+  ] = useState("");
+
+  const [
+    status,
+    setStatus,
+  ] =
+    useState<GameStatus>(
+      "Backlog",
+    );
+
+  const [
+    selectedGame,
+    setSelectedGame,
+  ] =
+    useState<
+      GameSuggestion | null
+    >(null);
 
   const [
     suggestions,
     setSuggestions,
   ] =
-    useState<GameSuggestion[]>([]);
+    useState<
+      GameSuggestion[]
+    >([]);
 
   const [
     isSearching,
     setIsSearching,
-  ] = useState(false);
+  ] =
+    useState(false);
 
   const [
     showSuggestions,
     setShowSuggestions,
-  ] = useState(false);
+  ] =
+    useState(false);
 
   const [
     isSubmitting,
     setIsSubmitting,
-  ] = useState(false);
+  ] =
+    useState(false);
 
-  const [error, setError] =
-    useState("");
+  const [
+    error,
+    setError,
+  ] = useState("");
 
   const searchContainerRef =
-    useRef<HTMLDivElement>(null);
+    useRef<HTMLDivElement>(
+      null,
+    );
 
   useEffect(() => {
     function handleOutsideClick(
@@ -96,7 +139,9 @@ export function GameForm({
           event.target as Node,
         )
       ) {
-        setShowSuggestions(false);
+        setShowSuggestions(
+          false,
+        );
       }
     }
 
@@ -117,7 +162,10 @@ export function GameForm({
     const cleanTitle =
       title.trim();
 
-    if (cleanTitle.length < 2) {
+    if (
+      cleanTitle.length <
+      2
+    ) {
       return;
     }
 
@@ -128,7 +176,9 @@ export function GameForm({
       window.setTimeout(
         async () => {
           try {
-            setIsSearching(true);
+            setIsSearching(
+              true,
+            );
 
             const response =
               await fetch(
@@ -141,8 +191,13 @@ export function GameForm({
                 },
               );
 
-            if (!response.ok) {
-              setSuggestions([]);
+            if (
+              !response.ok
+            ) {
+              setSuggestions(
+                [],
+              );
+
               return;
             }
 
@@ -150,13 +205,16 @@ export function GameForm({
               (await response.json()) as GameSearchResponse;
 
             setSuggestions(
-              data.games ?? [],
+              data.games ??
+                [],
             );
 
             setShowSuggestions(
               true,
             );
-          } catch (searchError) {
+          } catch (
+            searchError
+          ) {
             if (
               searchError instanceof
                 Error &&
@@ -171,9 +229,13 @@ export function GameForm({
               searchError,
             );
 
-            setSuggestions([]);
+            setSuggestions(
+              [],
+            );
           } finally {
-            setIsSearching(false);
+            setIsSearching(
+              false,
+            );
           }
         },
         350,
@@ -193,41 +255,86 @@ export function GameForm({
   ) {
     setTitle(value);
 
-    setSelectedCoverUrl(
+    setSelectedGame(
       null,
     );
 
     setError("");
 
-    if (value.trim().length < 2) {
-      setSuggestions([]);
-      setShowSuggestions(false);
-      setIsSearching(false);
+    if (
+      value.trim().length <
+      2
+    ) {
+      setSuggestions(
+        [],
+      );
+
+      setShowSuggestions(
+        false,
+      );
+
+      setIsSearching(
+        false,
+      );
 
       return;
     }
 
-    setShowSuggestions(true);
+    setShowSuggestions(
+      true,
+    );
   }
 
   function handleSuggestionClick(
     game: GameSuggestion,
   ) {
-    setTitle(game.title);
-
-    setSelectedCoverUrl(
-      game.coverUrl,
+    setTitle(
+      game.title,
     );
 
-    setSuggestions([]);
+    setSelectedGame(
+      game,
+    );
 
-    setShowSuggestions(false);
+    setSuggestions(
+      [],
+    );
+
+    setShowSuggestions(
+      false,
+    );
 
     setError("");
   }
 
+  function formatReleaseDate(
+    releaseDate:
+      | string
+      | null,
+  ) {
+    if (
+      !releaseDate
+    ) {
+      return "Release Date Unknown";
+    }
+
+    return new Intl.DateTimeFormat(
+      "en-AU",
+      {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      },
+    ).format(
+      new Date(
+        `${releaseDate}T00:00:00`,
+      ),
+    );
+  }
+
   async function handleSubmit(
-    event: FormEvent<HTMLFormElement>,
+    event:
+      FormEvent<HTMLFormElement>,
   ) {
     event.preventDefault();
 
@@ -250,14 +357,17 @@ export function GameForm({
       return;
     }
 
-    setIsSubmitting(true);
+    setIsSubmitting(
+      true,
+    );
+
     setError("");
 
     try {
-      let coverUrl =
-        selectedCoverUrl;
+      let gameData =
+        selectedGame;
 
-      if (!coverUrl) {
+      if (!gameData) {
         const response =
           await fetch(
             `/api/game-search?q=${encodeURIComponent(
@@ -265,41 +375,74 @@ export function GameForm({
             )}`,
           );
 
-        if (response.ok) {
+        if (
+          response.ok
+        ) {
           const data =
             (await response.json()) as GameSearchResponse;
 
-          const firstGame =
-            data.games?.[0];
-
-          if (firstGame) {
-            coverUrl =
-              firstGame.coverUrl;
-          }
+          gameData =
+            data.games?.[0] ??
+            null;
         }
       }
 
       await onAddGame({
-        title: cleanTitle,
+        title:
+          cleanTitle,
+
         platform,
+
         status,
-        cover_url: coverUrl,
+
+        cover_url:
+          gameData
+            ?.coverUrl ??
+          null,
+
+        publisher:
+          gameData
+            ?.publisher ??
+          null,
+
+        release_date:
+          gameData
+            ?.releaseDate ??
+          null,
+
+        genres:
+          gameData
+            ?.genres ??
+          null,
+
+        rating:
+          gameData
+            ?.rating ??
+          null,
       });
 
       setTitle("");
-      setPlatform("");
-      setStatus("Backlog");
 
-      setSelectedCoverUrl(
+      setPlatform("");
+
+      setStatus(
+        "Backlog",
+      );
+
+      setSelectedGame(
         null,
       );
 
-      setSuggestions([]);
+      setSuggestions(
+        [],
+      );
 
       setShowSuggestions(
         false,
       );
-    } catch (submitError) {
+    } catch (
+      submitError
+    ) {
       console.error(
         submitError,
       );
@@ -316,7 +459,9 @@ export function GameForm({
 
   return (
     <form
-      onSubmit={handleSubmit}
+      onSubmit={
+        handleSubmit
+      }
       className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
     >
       <div className="mb-6">
@@ -348,15 +493,18 @@ export function GameForm({
             <div className="relative">
               <input
                 type="text"
-                value={title}
+                value={
+                  title
+                }
                 onChange={(
                   event,
-                ) => {
+                ) =>
                   handleTitleChange(
-                    event.target
+                    event
+                      .target
                       .value,
-                  );
-                }}
+                  )
+                }
                 onFocus={() => {
                   if (
                     suggestions.length >
@@ -379,39 +527,25 @@ export function GameForm({
           </label>
 
           {showSuggestions &&
-            title.trim()
-              .length >= 2 && (
+            title
+              .trim()
+              .length >=
+              2 && (
               <div className="absolute left-0 right-0 top-[76px] z-50 max-h-96 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-xl">
-                {isSearching &&
-                  suggestions.length ===
-                    0 && (
-                    <p className="px-4 py-4 text-sm text-slate-500">
-                      Searching
-                      IGDB...
-                    </p>
-                  )}
-
-                {!isSearching &&
-                  suggestions.length ===
-                    0 && (
-                    <p className="px-4 py-4 text-sm text-slate-500">
-                      No matching
-                      games found.
-                    </p>
-                  )}
-
                 {suggestions.map(
-                  (game) => (
+                  (
+                    game,
+                  ) => (
                     <button
                       key={
                         game.id
                       }
                       type="button"
-                      onClick={() => {
+                      onClick={() =>
                         handleSuggestionClick(
                           game,
-                        );
-                      }}
+                        )
+                      }
                       className="flex w-full items-center gap-3 rounded-xl p-2 text-left transition hover:bg-slate-100"
                     >
                       <div className="h-16 w-12 shrink-0 overflow-hidden rounded-lg bg-slate-100">
@@ -424,7 +558,7 @@ export function GameForm({
                             className="h-full w-full object-cover"
                           />
                         ) : (
-                          <div className="flex h-full w-full items-center justify-center bg-slate-200 text-xs font-bold text-slate-400">
+                          <div className="flex h-full w-full items-center justify-center text-xs font-bold text-slate-400">
                             N/A
                           </div>
                         )}
@@ -437,13 +571,10 @@ export function GameForm({
                           }
                         </p>
 
-                        {game.year && (
-                          <p className="mt-1 text-xs text-slate-500">
-                            {
-                              game.year
-                            }
-                          </p>
-                        )}
+                        <p className="mt-1 truncate text-xs text-slate-500">
+                          {game.publisher ??
+                            "Unknown Publisher"}
+                        </p>
                       </div>
                     </button>
                   ),
@@ -456,16 +587,19 @@ export function GameForm({
           Platform
 
           <select
-            value={platform}
+            value={
+              platform
+            }
             onChange={(
               event,
-            ) => {
+            ) =>
               setPlatform(
-                event.target
+                event
+                  .target
                   .value,
-              );
-            }}
-            className="h-12 rounded-xl border border-slate-300 bg-white px-4 text-slate-950 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+              )
+            }
+            className="h-12 rounded-xl border border-slate-300 bg-white px-4 text-slate-950 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
           >
             <option value="">
               Select Platform
@@ -499,13 +633,14 @@ export function GameForm({
             value={status}
             onChange={(
               event,
-            ) => {
+            ) =>
               setStatus(
-                event.target
+                event
+                  .target
                   .value as GameStatus,
-              );
-            }}
-            className="h-12 rounded-xl border border-slate-300 bg-white px-4 text-slate-950 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+              )
+            }
+            className="h-12 rounded-xl border border-slate-300 bg-white px-4 text-slate-950 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
           >
             <option value="Backlog">
               Backlog
@@ -522,15 +657,17 @@ export function GameForm({
         </label>
       </div>
 
-      {selectedCoverUrl && (
-        <div className="mt-5 flex items-center gap-4 rounded-2xl border border-indigo-100 bg-indigo-50 p-4">
-          <img
-            src={
-              selectedCoverUrl
-            }
-            alt={`${title} cover`}
-            className="h-20 w-14 rounded-lg object-cover shadow-sm"
-          />
+      {selectedGame && (
+        <div className="mt-5 flex gap-4 rounded-2xl border border-indigo-100 bg-indigo-50 p-4">
+          {selectedGame.coverUrl && (
+            <img
+              src={
+                selectedGame.coverUrl
+              }
+              alt={`${selectedGame.title} cover`}
+              className="h-24 w-16 shrink-0 rounded-lg object-cover shadow-sm"
+            />
+          )}
 
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.15em] text-indigo-600">
@@ -538,8 +675,41 @@ export function GameForm({
             </p>
 
             <p className="mt-1 font-bold text-slate-950">
-              {title}
+              {
+                selectedGame.title
+              }
             </p>
+
+            <p className="mt-1 text-sm text-slate-600">
+              {selectedGame.publisher ??
+                "Unknown Publisher"}
+            </p>
+
+            <p className="text-sm text-slate-600">
+              {formatReleaseDate(
+                selectedGame.releaseDate,
+              )}
+            </p>
+
+            {selectedGame.genres.length >
+              0 && (
+              <p className="mt-1 text-sm text-slate-600">
+                {selectedGame.genres.join(
+                  " • ",
+                )}
+              </p>
+            )}
+
+            {selectedGame.rating !==
+              null && (
+              <p className="mt-1 text-sm font-bold text-indigo-700">
+                IGDB Rating:{" "}
+                {
+                  selectedGame.rating
+                }
+                /100
+              </p>
+            )}
           </div>
         </div>
       )}

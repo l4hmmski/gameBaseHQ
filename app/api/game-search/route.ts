@@ -12,9 +12,12 @@ type TwitchTokenResponse = {
 type IgdbGame = {
   id: number;
   name: string;
+
   cover?: {
     image_id?: string;
   };
+
+  first_release_date?: number;
 };
 
 type CachedToken = {
@@ -22,7 +25,8 @@ type CachedToken = {
   expiresAt: number;
 };
 
-let cachedToken: CachedToken | null = null;
+let cachedToken: CachedToken | null =
+  null;
 
 function getIgdbCredentials() {
   const clientId =
@@ -56,7 +60,7 @@ async function getAccessToken() {
     clientSecret,
   } = getIgdbCredentials();
 
-  const tokenResponse = await fetch(
+  const response = await fetch(
     "https://id.twitch.tv/oauth2/token",
     {
       method: "POST",
@@ -77,17 +81,17 @@ async function getAccessToken() {
     },
   );
 
-  if (!tokenResponse.ok) {
+  if (!response.ok) {
     const responseText =
-      await tokenResponse.text();
+      await response.text();
 
     throw new Error(
-      `Could not get Twitch access token. Status: ${tokenResponse.status}. ${responseText}`,
+      `Could not get Twitch access token. Status: ${response.status}. ${responseText}`,
     );
   }
 
   const tokenData =
-    (await tokenResponse.json()) as TwitchTokenResponse;
+    (await response.json()) as TwitchTokenResponse;
 
   cachedToken = {
     accessToken:
@@ -113,53 +117,24 @@ function escapeIgdbSearchText(
     .replace(/"/g, '\\"');
 }
 
-function chooseBestMatch(
-  games: IgdbGame[],
-  requestedTitle: string,
-) {
-  const normalisedTitle =
-    requestedTitle
-      .trim()
-      .toLowerCase();
-
-  const exactMatch = games.find(
-    (game) =>
-      game.name
-        .trim()
-        .toLowerCase() ===
-        normalisedTitle &&
-      game.cover?.image_id,
-  );
-
-  if (exactMatch) {
-    return exactMatch;
-  }
-
-  return games.find(
-    (game) =>
-      Boolean(game.cover?.image_id),
-  );
-}
-
 export async function GET(
   request: NextRequest,
 ) {
-  const title =
+  const query =
     request.nextUrl.searchParams
-      .get("title")
+      .get("q")
       ?.trim();
 
-  if (!title) {
-    return NextResponse.json(
-      {
-        error:
-          "A game title is required.",
-      },
+  if (!query) {
+    return NextResponse.json({
+      games: [],
+    });
+  }
 
-      {
-        status: 400,
-      },
-    );
+  if (query.length < 2) {
+    return NextResponse.json({
+      games: [],
+    });
   }
 
   try {
@@ -169,8 +144,8 @@ export async function GET(
     const accessToken =
       await getAccessToken();
 
-    const safeTitle =
-      escapeIgdbSearchText(title);
+    const safeQuery =
+      escapeIgdbSearchText(query);
 
     const igdbResponse = await fetch(
       "https://api.igdb.com/v4/games",
@@ -190,7 +165,11 @@ export async function GET(
             "text/plain",
         },
 
-        body: `search "${safeTitle}"; fields id,name,cover.image_id; limit 10;`,
+        body: `
+          search "${safeQuery}";
+          fields id,name,cover.image_id,first_release_date;
+          limit 8;
+        `,
 
         cache: "no-store",
       },
@@ -208,36 +187,45 @@ export async function GET(
     const games =
       (await igdbResponse.json()) as IgdbGame[];
 
-    const bestMatch =
-      chooseBestMatch(
-        games,
-        title,
-      );
+    const formattedGames =
+      games.map((game) => {
+        const imageId =
+          game.cover?.image_id;
 
-    const imageId =
-      bestMatch?.cover
-        ?.image_id;
+        const coverUrl = imageId
+          ? `https://images.igdb.com/igdb/image/upload/t_cover_small_2x/${imageId}.jpg`
+          : null;
 
-    const coverUrl = imageId
-      ? `https://images.igdb.com/igdb/image/upload/t_cover_big_2x/${imageId}.jpg`
-      : null;
+        const year =
+          game.first_release_date
+            ? new Date(
+                game.first_release_date *
+                  1000,
+              ).getFullYear()
+            : null;
+
+        return {
+          id: game.id,
+          title: game.name,
+          coverUrl,
+          year,
+        };
+      });
 
     return NextResponse.json({
-      coverUrl,
-
-      matchedTitle:
-        bestMatch?.name ?? null,
+      games: formattedGames,
     });
   } catch (error) {
     console.error(
-      "Could not fetch game cover from IGDB:",
+      "Could not search IGDB:",
       error,
     );
 
     return NextResponse.json(
       {
         error:
-          "The game cover could not be fetched from IGDB.",
+          "Game search could not be completed.",
+        games: [],
       },
 
       {

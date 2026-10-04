@@ -14,8 +14,10 @@ const statusStyles: Record<
 > = {
   Backlog:
     "bg-amber-100 text-amber-800",
+
   Playing:
     "bg-blue-100 text-blue-800",
+
   Completed:
     "bg-emerald-100 text-emerald-800",
 };
@@ -26,7 +28,7 @@ export function GameCard({
 }: GameCardProps) {
   return (
     <article className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
-      <div className="relative aspect-[16/10] overflow-hidden bg-gradient-to-br from-indigo-600 to-violet-800">
+      <div className="relative aspect-[3/4] overflow-hidden bg-gradient-to-br from-indigo-600 to-violet-800">
         {game.cover_url ? (
           <img
             src={game.cover_url}

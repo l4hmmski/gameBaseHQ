@@ -65,6 +65,7 @@ export function GameLibrary() {
         );
 
         setIsLoading(false);
+
         return;
       }
 
@@ -107,11 +108,16 @@ export function GameLibrary() {
       .from("games")
       .insert({
         title: newGame.title,
+
         platform:
           newGame.platform,
-        status: newGame.status,
+
+        status:
+          newGame.status,
+
         cover_url:
           newGame.cover_url,
+
         user_id:
           userData.user.id,
       })
@@ -181,56 +187,60 @@ export function GameLibrary() {
           .toLowerCase();
 
       const filteredGames =
-        games.filter((game) => {
-          const matchesSearch =
-            game.title
-              .toLowerCase()
-              .includes(
-                cleanSearch,
-              ) ||
-            game.platform
-              .toLowerCase()
-              .includes(
-                cleanSearch,
-              );
+        games.filter(
+          (game) => {
+            const matchesSearch =
+              game.title
+                .toLowerCase()
+                .includes(
+                  cleanSearch,
+                ) ||
+              game.platform
+                .toLowerCase()
+                .includes(
+                  cleanSearch,
+                );
 
-          const matchesStatus =
-            statusFilter ===
-              "All" ||
-            game.status ===
-              statusFilter;
+            const matchesStatus =
+              statusFilter ===
+                "All" ||
+              game.status ===
+                statusFilter;
 
-          return (
-            matchesSearch &&
-            matchesStatus
-          );
-        });
+            return (
+              matchesSearch &&
+              matchesStatus
+            );
+          },
+        );
 
       return [
         ...filteredGames,
-      ].sort((gameA, gameB) => {
-        if (
-          sortOrder ===
-          "title-descending"
-        ) {
-          return gameB.title.localeCompare(
-            gameA.title,
-          );
-        }
+      ].sort(
+        (gameA, gameB) => {
+          if (
+            sortOrder ===
+            "title-descending"
+          ) {
+            return gameB.title.localeCompare(
+              gameA.title,
+            );
+          }
 
-        if (
-          sortOrder ===
-          "platform"
-        ) {
-          return gameA.platform.localeCompare(
-            gameB.platform,
-          );
-        }
+          if (
+            sortOrder ===
+            "platform"
+          ) {
+            return gameA.platform.localeCompare(
+              gameB.platform,
+            );
+          }
 
-        return gameA.title.localeCompare(
-          gameB.title,
-        );
-      });
+          return gameA.title.localeCompare(
+            gameB.title,
+          );
+        },
+      );
     }, [
       games,
       search,
@@ -247,14 +257,17 @@ export function GameLibrary() {
       <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="grid gap-4 md:grid-cols-[1fr_auto_auto]">
           <label className="grid gap-2 text-sm font-semibold text-slate-800">
-            Search library
+            Search Library
 
             <input
               type="search"
               value={search}
-              onChange={(event) => {
+              onChange={(
+                event,
+              ) => {
                 setSearch(
-                  event.target.value,
+                  event.target
+                    .value,
                 );
               }}
               placeholder="Search by title or platform"
@@ -266,8 +279,12 @@ export function GameLibrary() {
             Status
 
             <select
-              value={statusFilter}
-              onChange={(event) => {
+              value={
+                statusFilter
+              }
+              onChange={(
+                event,
+              ) => {
                 setStatusFilter(
                   event.target
                     .value as StatusFilter,
@@ -298,9 +315,12 @@ export function GameLibrary() {
 
             <select
               value={sortOrder}
-              onChange={(event) => {
+              onChange={(
+                event,
+              ) => {
                 setSortOrder(
-                  event.target.value,
+                  event.target
+                    .value,
                 );
               }}
               className="h-11 rounded-xl border border-slate-300 bg-white px-4 text-slate-950 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
@@ -328,11 +348,14 @@ export function GameLibrary() {
           </p>
 
           <h2 className="mt-1 text-2xl font-bold text-slate-950">
-            {visibleGames.length}
+            {
+              visibleGames.length
+            }
 
-            {visibleGames.length === 1
-              ? " game"
-              : " games"}
+            {visibleGames.length ===
+            1
+              ? " Game"
+              : " Games"}
           </h2>
         </div>
       </div>
@@ -346,7 +369,8 @@ export function GameLibrary() {
       {isLoading ? (
         <div className="rounded-3xl border border-slate-200 bg-white p-12 text-center shadow-sm">
           <p className="font-semibold text-slate-700">
-            Loading your games...
+            Loading your
+            games...
           </p>
         </div>
       ) : visibleGames.length >
@@ -371,25 +395,12 @@ export function GameLibrary() {
           </h2>
 
           <p className="mt-2 text-slate-600">
-            Add a game or change
-            your search filters.
+            Add a game or
+            change your search
+            filters.
           </p>
         </div>
       )}
-
-      <p className="text-center text-xs text-slate-500">
-        Game information provided
-        by{" "}
-        <a
-          href="https://www.cheapshark.com/"
-          target="_blank"
-          rel="noreferrer"
-          className="font-bold text-indigo-700 hover:underline"
-        >
-          CheapShark
-        </a>
-        .
-      </p>
     </section>
   );
 }

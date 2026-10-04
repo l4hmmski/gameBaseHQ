@@ -51,11 +51,15 @@ export function ProfileForm() {
   const [isSaving, setIsSaving] =
     useState(false);
 
-  const [errorMessage, setErrorMessage] =
-    useState("");
+  const [
+    errorMessage,
+    setErrorMessage,
+  ] = useState("");
 
-  const [successMessage, setSuccessMessage] =
-    useState("");
+  const [
+    successMessage,
+    setSuccessMessage,
+  ] = useState("");
 
   useEffect(() => {
     async function loadProfile() {
@@ -160,7 +164,7 @@ export function ProfileForm() {
       setIsLoading(false);
     }
 
-    loadProfile();
+    void loadProfile();
   }, []);
 
   async function handleSubmit(
@@ -244,17 +248,18 @@ export function ProfileForm() {
     );
   }
 
+  const initials =
+    displayName.trim().charAt(0) ||
+    username.trim().charAt(0) ||
+    email.trim().charAt(0) ||
+    "G";
+
   if (isLoading) {
     return (
-      <section
-        className="
-          rounded-xl border
-          border-gray-300 bg-white
-          p-12 text-center
-          text-gray-950
-        "
-      >
-        <p className="font-medium">
+      <section className="rounded-3xl border border-slate-200 bg-white p-12 text-center shadow-sm">
+        <div className="mx-auto h-10 w-10 animate-pulse rounded-full bg-indigo-100" />
+
+        <p className="mt-4 font-semibold text-slate-700">
           Loading your profile...
         </p>
       </section>
@@ -262,139 +267,147 @@ export function ProfileForm() {
   }
 
   return (
-    <div
-      className="
-        grid gap-8
-        md:grid-cols-[1fr_2fr]
-      "
-    >
+    <div className="grid gap-8 lg:grid-cols-[320px_1fr]">
       <aside className="space-y-5">
-        <section
-          className="
-            rounded-xl border
-            border-gray-300 bg-white
-            p-6 text-gray-950
-            shadow-sm
-          "
-        >
-          <p className="text-sm font-semibold text-gray-700">
-            Email
-          </p>
+        <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+          <div className="h-24 bg-gradient-to-r from-indigo-600 to-violet-600" />
 
-          <p className="mt-1 break-all font-medium text-black">
-            {email}
-          </p>
+          <div className="px-6 pb-6">
+            <div className="-mt-10 flex h-20 w-20 items-center justify-center rounded-3xl border-4 border-white bg-slate-950 text-3xl font-black uppercase text-white shadow-lg">
+              {initials}
+            </div>
+
+            <h2 className="mt-4 text-xl font-black text-slate-950">
+              {displayName ||
+                username ||
+                "Your profile"}
+            </h2>
+
+            {username && (
+              <p className="mt-1 text-sm font-semibold text-indigo-600">
+                @{username}
+              </p>
+            )}
+
+            <p className="mt-4 break-all text-sm text-slate-500">
+              {email}
+            </p>
+          </div>
         </section>
 
-        <section
-          className="
-            rounded-xl border
-            border-gray-300 bg-white
-            p-6 text-gray-950
-            shadow-sm
-          "
-        >
-          <p className="text-sm font-semibold text-gray-700">
-            Games collected
-          </p>
+        <section className="grid grid-cols-2 gap-4 lg:grid-cols-1">
+          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">
+              Games collected
+            </p>
 
-          <p className="mt-1 text-3xl font-bold text-black">
-            {gameCount}
-          </p>
+            <p className="mt-2 text-4xl font-black tracking-tight text-slate-950">
+              {gameCount}
+            </p>
+
+            <p className="mt-1 text-sm text-slate-500">
+              In your library
+            </p>
+          </div>
+
+          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">
+              Member since
+            </p>
+
+            <p className="mt-2 font-bold text-slate-950">
+              {joinedDate}
+            </p>
+
+            <p className="mt-1 text-sm text-slate-500">
+              Account created
+            </p>
+          </div>
         </section>
 
-        <section
-          className="
-            rounded-xl border
-            border-gray-300 bg-white
-            p-6 text-gray-950
-            shadow-sm
-          "
-        >
-          <p className="text-sm font-semibold text-gray-700">
-            Member since
-          </p>
+        {favouritePlatform && (
+          <section className="rounded-3xl border border-indigo-100 bg-indigo-50 p-5">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-indigo-600">
+              Favourite platform
+            </p>
 
-          <p className="mt-1 font-medium text-black">
-            {joinedDate}
-          </p>
-        </section>
+            <p className="mt-2 text-lg font-black text-indigo-950">
+              {favouritePlatform}
+            </p>
+          </section>
+        )}
       </aside>
 
       <form
         onSubmit={handleSubmit}
-        className="
-          rounded-xl border
-          border-gray-300 bg-white
-          p-6 text-gray-950
-          shadow-sm
-        "
+        className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8"
       >
-        <h2 className="text-2xl font-bold text-black">
-          Profile information
-        </h2>
+        <div className="border-b border-slate-100 pb-6">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-600">
+            Account details
+          </p>
 
-        <p className="mt-1 text-gray-800">
-          Update your public account
-          information.
-        </p>
+          <h2 className="mt-2 text-2xl font-black tracking-tight text-slate-950">
+            Profile information
+          </h2>
 
-        <label className="mt-6 block space-y-2">
-          <span className="font-semibold text-black">
-            Username
-          </span>
+          <p className="mt-2 max-w-2xl leading-7 text-slate-600">
+            Update the information shown
+            on your account and choose
+            your gaming preferences.
+          </p>
+        </div>
 
-          <input
-            type="text"
-            value={username}
-            onChange={(event) =>
-              setUsername(
-                event.target.value,
-              )
-            }
-            placeholder="liamjaryn"
-            className="
-              w-full rounded-lg border
-              border-gray-400 bg-white
-              px-4 py-3 text-black
-              placeholder:text-gray-500
-              outline-none
-              focus:border-blue-600
-              focus:ring-2
-              focus:ring-blue-100
-            "
-          />
-        </label>
+        <div className="mt-7 grid gap-6 sm:grid-cols-2">
+          <label className="grid gap-2">
+            <span className="text-sm font-bold text-slate-800">
+              Username
+            </span>
 
-        <label className="mt-5 block space-y-2">
-          <span className="font-semibold text-black">
-            Display name
-          </span>
+            <input
+              type="text"
+              value={username}
+              onChange={(event) =>
+                setUsername(
+                  event.target.value,
+                )
+              }
+              placeholder="Your username"
+              className="h-12 rounded-xl border border-slate-300 bg-white px-4 text-slate-950 outline-none placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+            />
 
-          <input
-            type="text"
-            value={displayName}
-            onChange={(event) =>
-              setDisplayName(
-                event.target.value,
-              )
-            }
-            placeholder="Liam"
-            className="
-              w-full rounded-lg border
-              border-gray-400 bg-white
-              px-4 py-3 text-black
-              placeholder:text-gray-500
-              outline-none
-              focus:border-blue-600
-              focus:ring-2
-              focus:ring-blue-100
-            "
-          />
-        </label>
+            <span className="text-xs text-slate-500">
+              Letters, numbers,
+              underscores and hyphens.
+            </span>
+          </label>
 
-        <label className="mt-5 block space-y-2">
-          <span className="font-semibold text-black">
+          <label className="grid gap-2">
+            <span className="text-sm font-bold text-slate-800">
+              Display name
+            </span>
+
+            <input
+              type="text"
+              value={displayName}
+              onChange={(event) =>
+                setDisplayName(
+                  event.target.value,
+                )
+              }
+              placeholder="Your name"
+              className="h-12 rounded-xl border border-slate-300 bg-white px-4 text-slate-950 outline-none placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+            />
+
+            <span className="text-xs text-slate-500">
+              This can be your real name
+              or gamer name.
+            </span>
+          </label>
+        </div>
+
+        <label className="mt-6 grid gap-2">
+          <span className="text-sm font-bold text-slate-800">
             Favourite platform
           </span>
 
@@ -405,15 +418,7 @@ export function ProfileForm() {
                 event.target.value,
               )
             }
-            className="
-              w-full rounded-lg border
-              border-gray-400 bg-white
-              px-4 py-3 text-black
-              outline-none
-              focus:border-blue-600
-              focus:ring-2
-              focus:ring-blue-100
-            "
+            className="h-12 rounded-xl border border-slate-300 bg-white px-4 text-slate-950 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
           >
             <option value="">
               Select a platform
@@ -432,78 +437,52 @@ export function ProfileForm() {
           </select>
         </label>
 
-        <label className="mt-5 block space-y-2">
-          <span className="font-semibold text-black">
-            Bio
-          </span>
+        <label className="mt-6 grid gap-2">
+          <div className="flex items-center justify-between gap-4">
+            <span className="text-sm font-bold text-slate-800">
+              Bio
+            </span>
+
+            <span className="text-xs font-semibold text-slate-400">
+              {bio.length}/300
+            </span>
+          </div>
 
           <textarea
             value={bio}
             onChange={(event) =>
               setBio(event.target.value)
             }
-            rows={5}
+            rows={6}
             maxLength={300}
-            placeholder="Tell us about your game collection..."
-            className="
-              w-full resize-y rounded-lg
-              border border-gray-400
-              bg-white px-4 py-3
-              text-black
-              placeholder:text-gray-500
-              outline-none
-              focus:border-blue-600
-              focus:ring-2
-              focus:ring-blue-100
-            "
+            placeholder="Tell us about your game collection, favourite games or what you're currently playing..."
+            className="w-full resize-y rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-950 outline-none placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
           />
-
-          <p className="text-sm font-medium text-gray-700">
-            {bio.length}/300 characters
-          </p>
         </label>
 
         {errorMessage && (
-          <div
-            className="
-              mt-5 rounded-lg border
-              border-red-300 bg-red-50
-              p-3 text-red-900
-            "
-          >
+          <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
             {errorMessage}
           </div>
         )}
 
         {successMessage && (
-          <div
-            className="
-              mt-5 rounded-lg border
-              border-green-300
-              bg-green-50 p-3
-              text-green-900
-            "
-          >
+          <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
             {successMessage}
           </div>
         )}
 
-        <button
-          type="submit"
-          disabled={isSaving}
-          className="
-            mt-6 rounded-lg
-            bg-blue-700 px-5 py-3
-            font-semibold text-white
-            hover:bg-blue-800
-            disabled:cursor-not-allowed
-            disabled:bg-blue-300
-          "
-        >
-          {isSaving
-            ? "Saving..."
-            : "Save profile"}
-        </button>
+        <div className="mt-8 flex items-center justify-end border-t border-slate-100 pt-6">
+          <button
+            type="submit"
+            disabled={isSaving}
+            className="rounded-xl bg-indigo-600 px-6 py-3 font-bold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-indigo-300"
+          >
+            {isSaving
+              ? "Saving..."
+              : "Save profile"}
+          </button>
+        </div>
       </form>
     </div>
   );

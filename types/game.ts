@@ -6,6 +6,8 @@ export type GameStatus =
 export type Game = {
   id: string;
 
+  igdb_id: number | null;
+
   title: string;
 
   platform: string;
@@ -23,4 +25,8 @@ export type Game = {
   rating: number | null;
 
   user_rating: number | null;
+
+  notes: string | null;
+
+  is_wishlist: boolean;
 };

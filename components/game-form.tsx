@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import {
   FormEvent,
   useEffect,
@@ -13,15 +15,17 @@ import {
 } from "@/types/game";
 
 type NewGame =
-  Omit<
-    Game,
-    "id"
-  >;
+  Omit<Game, "id">;
+
+type AddGameResult = {
+  success: boolean;
+  error?: string;
+};
 
 type GameFormProps = {
   onAddGame: (
     game: NewGame,
-  ) => Promise<void>;
+  ) => Promise<AddGameResult>;
 };
 
 type GameSuggestion = {
@@ -29,28 +33,19 @@ type GameSuggestion = {
 
   title: string;
 
-  coverUrl:
-    | string
-    | null;
+  coverUrl: string | null;
 
-  publisher:
-    | string
-    | null;
+  publisher: string | null;
 
-  releaseDate:
-    | string
-    | null;
+  releaseDate: string | null;
 
   genres: string[];
 
-  rating:
-    | number
-    | null;
+  rating: number | null;
 };
 
 type GameSearchResponse = {
-  games:
-    GameSuggestion[];
+  games: GameSuggestion[];
 };
 
 const platforms = [
@@ -84,6 +79,11 @@ export function GameForm({
     useState<GameStatus>(
       "Backlog",
     );
+
+  const [
+    isWishlist,
+    setIsWishlist,
+  ] = useState(false);
 
   const [
     selectedGame,
@@ -312,9 +312,7 @@ export function GameForm({
       | string
       | null,
   ) {
-    if (
-      !releaseDate
-    ) {
+    if (!releaseDate) {
       return "Release Date Unknown";
     }
 
@@ -387,49 +385,74 @@ export function GameForm({
         }
       }
 
-      await onAddGame({
-        title:
-          cleanTitle,
+      const result =
+        await onAddGame({
+          igdb_id:
+            gameData?.id ??
+            null,
 
-        platform,
+          title:
+            cleanTitle,
 
-        status,
+          platform,
 
-        cover_url:
-          gameData
-            ?.coverUrl ??
-          null,
+          status,
 
-        publisher:
-          gameData
-            ?.publisher ??
-          null,
+          cover_url:
+            gameData
+              ?.coverUrl ??
+            null,
 
-        release_date:
-          gameData
-            ?.releaseDate ??
-          null,
+          publisher:
+            gameData
+              ?.publisher ??
+            null,
 
-        genres:
-          gameData
-            ?.genres ??
-          null,
+          release_date:
+            gameData
+              ?.releaseDate ??
+            null,
 
-        rating:
-          gameData
-            ?.rating ??
-          null,
+          genres:
+            gameData
+              ?.genres ??
+            null,
 
-        user_rating:
-          null,
-      });
+          rating:
+            gameData
+              ?.rating ??
+            null,
+
+          user_rating:
+            null,
+
+          notes:
+            null,
+
+          is_wishlist:
+            isWishlist,
+        });
+
+      if (
+        !result.success
+      ) {
+        setError(
+          result.error ??
+            "The game could not be added.",
+        );
+
+        return;
+      }
 
       setTitle("");
-
       setPlatform("");
 
       setStatus(
         "Backlog",
+      );
+
+      setIsWishlist(
+        false,
       );
 
       setSelectedGame(
@@ -477,9 +500,10 @@ export function GameForm({
         </h2>
 
         <p className="mt-2 text-sm leading-6 text-slate-600">
-          Start typing a game
-          title and select the
-          correct game from IGDB.
+          Search IGDB, choose your
+          platform and add the game
+          to your collection or
+          wishlist.
         </p>
       </div>
 
@@ -503,8 +527,7 @@ export function GameForm({
                   event,
                 ) =>
                   handleTitleChange(
-                    event
-                      .target
+                    event.target
                       .value,
                   )
                 }
@@ -535,6 +558,22 @@ export function GameForm({
               .length >=
               2 && (
               <div className="absolute left-0 right-0 top-[76px] z-50 max-h-96 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-xl">
+                {isSearching &&
+                  suggestions.length ===
+                    0 && (
+                    <p className="px-4 py-4 text-sm text-slate-500">
+                      Searching IGDB...
+                    </p>
+                  )}
+
+                {!isSearching &&
+                  suggestions.length ===
+                    0 && (
+                    <p className="px-4 py-4 text-sm text-slate-500">
+                      No matching games found.
+                    </p>
+                  )}
+
                 {suggestions.map(
                   (
                     game,
@@ -551,14 +590,16 @@ export function GameForm({
                       }
                       className="flex w-full items-center gap-3 rounded-xl p-2 text-left transition hover:bg-slate-100"
                     >
-                      <div className="h-16 w-12 shrink-0 overflow-hidden rounded-lg bg-slate-100">
+                      <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded-lg bg-slate-100">
                         {game.coverUrl ? (
-                          <img
+                          <Image
                             src={
                               game.coverUrl
                             }
-                            alt=""
-                            className="h-full w-full object-cover"
+                            alt={`${game.title} cover`}
+                            fill
+                            sizes="48px"
+                            className="object-cover"
                           />
                         ) : (
                           <div className="flex h-full w-full items-center justify-center text-xs font-bold text-slate-400">
@@ -597,8 +638,7 @@ export function GameForm({
               event,
             ) =>
               setPlatform(
-                event
-                  .target
+                event.target
                   .value,
               )
             }
@@ -638,8 +678,7 @@ export function GameForm({
               event,
             ) =>
               setStatus(
-                event
-                  .target
+                event.target
                   .value as GameStatus,
               )
             }
@@ -660,16 +699,49 @@ export function GameForm({
         </label>
       </div>
 
+      <label className="mt-5 flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+        <input
+          type="checkbox"
+          checked={
+            isWishlist
+          }
+          onChange={(
+            event,
+          ) =>
+            setIsWishlist(
+              event.target
+                .checked,
+            )
+          }
+          className="h-4 w-4 accent-indigo-600"
+        />
+
+        <div>
+          <p className="text-sm font-bold text-slate-800">
+            Add to Wishlist
+          </p>
+
+          <p className="text-xs text-slate-500">
+            Mark this as a game you
+            want to own or play later.
+          </p>
+        </div>
+      </label>
+
       {selectedGame && (
         <div className="mt-5 flex gap-4 rounded-2xl border border-indigo-100 bg-indigo-50 p-4">
           {selectedGame.coverUrl && (
-            <img
-              src={
-                selectedGame.coverUrl
-              }
-              alt={`${selectedGame.title} cover`}
-              className="h-24 w-16 shrink-0 rounded-lg object-cover shadow-sm"
-            />
+            <div className="relative h-24 w-16 shrink-0 overflow-hidden rounded-lg shadow-sm">
+              <Image
+                src={
+                  selectedGame.coverUrl
+                }
+                alt={`${selectedGame.title} cover`}
+                fill
+                sizes="64px"
+                className="object-cover"
+              />
+            </div>
           )}
 
           <div>
@@ -732,7 +804,9 @@ export function GameForm({
       >
         {isSubmitting
           ? "Adding Game..."
-          : "Add Game"}
+          : isWishlist
+            ? "Add to Wishlist"
+            : "Add Game"}
       </button>
     </form>
   );

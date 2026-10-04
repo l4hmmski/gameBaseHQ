@@ -1,16 +1,24 @@
+import Image from "next/image";
 import Link from "next/link";
 
 const featuredGames = [
   {
-    title: "Cyberpunk 2077",
-    image: "/home-games/cyberpunk.jpg",
+    title:
+      "Cyberpunk 2077",
+    image:
+      "/home-games/cyberpunk.jpg",
   },
+
   {
-    title: "Elden Ring",
-    image: "/home-games/elden-ring.jpg",
+    title:
+      "Elden Ring",
+    image:
+      "/home-games/elden-ring.jpg",
   },
+
   {
-    title: "Red Dead Redemption",
+    title:
+      "Red Dead Redemption",
     image:
       "/home-games/red-dead-redemption.jpg",
   },
@@ -20,9 +28,9 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-slate-50">
       {/* HERO */}
+
       <section className="border-b border-slate-200 bg-white">
         <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 sm:px-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:py-28">
-          {/* LEFT SIDE */}
           <div>
             <p className="text-sm font-bold uppercase tracking-[0.2em] text-indigo-600">
               Your Personal Collection
@@ -30,6 +38,7 @@ export default function HomePage() {
 
             <h1 className="mt-4 max-w-3xl text-5xl font-black tracking-tight text-slate-950 sm:text-6xl">
               Every Game You Own.
+
               <span className="block text-indigo-600">
                 All in One Place.
               </span>
@@ -60,7 +69,6 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* RIGHT SIDE */}
           <div className="relative">
             <div className="absolute -inset-4 rounded-[2rem] bg-indigo-100 blur-2xl" />
 
@@ -85,19 +93,29 @@ export default function HomePage() {
                 {featuredGames.map(
                   (game) => (
                     <div
-                      key={game.title}
+                      key={
+                        game.title
+                      }
                       className="group relative aspect-[3/4] min-w-0 overflow-hidden rounded-2xl bg-slate-800"
                     >
-                      <img
-                        src={game.image}
-                        alt={game.title}
-                        className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                      <Image
+                        src={
+                          game.image
+                        }
+                        alt={
+                          game.title
+                        }
+                        fill
+                        sizes="(max-width: 768px) 30vw, 180px"
+                        className="object-cover transition duration-500 group-hover:scale-105"
                       />
 
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
 
                       <p className="absolute bottom-3 left-3 right-3 text-xs font-bold leading-tight text-white sm:text-sm">
-                        {game.title}
+                        {
+                          game.title
+                        }
                       </p>
                     </div>
                   ),
@@ -141,6 +159,7 @@ export default function HomePage() {
       </section>
 
       {/* FEATURES */}
+
       <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8">
         <div className="max-w-2xl">
           <p className="text-sm font-bold uppercase tracking-[0.2em] text-indigo-600">

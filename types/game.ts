@@ -21,4 +21,6 @@ export type Game = {
   genres: string[] | null;
 
   rating: number | null;
+
+  user_rating: number | null;
 };

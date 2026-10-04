@@ -1,3 +1,9 @@
+"use client";
+
+import {
+  useState,
+} from "react";
+
 import type {
   Game,
   GameStatus,
@@ -9,6 +15,11 @@ type GameCardProps = {
   onDelete: (
     id: string,
   ) => void;
+
+  onRate: (
+    id: string,
+    rating: number,
+  ) => Promise<void>;
 };
 
 const statusStyles: Record<
@@ -53,7 +64,22 @@ function formatReleaseDate(
 export function GameCard({
   game,
   onDelete,
+  onRate,
 }: GameCardProps) {
+  const [
+    hoverRating,
+    setHoverRating,
+  ] =
+    useState<number | null>(
+      null,
+    );
+
+  const [
+    isSavingRating,
+    setIsSavingRating,
+  ] =
+    useState(false);
+
   const genreText =
     game.genres &&
     game.genres.length >
@@ -63,9 +89,30 @@ export function GameCard({
         )
       : "Unknown";
 
+  const displayedRating =
+    hoverRating ??
+    game.user_rating ??
+    0;
+
+  async function handleRating(
+    rating: number,
+  ) {
+    setIsSavingRating(
+      true,
+    );
+
+    await onRate(
+      game.id,
+      rating,
+    );
+
+    setIsSavingRating(
+      false,
+    );
+  }
+
   return (
     <article className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg">
-      {/* COVER */}
       <div className="relative aspect-[3/4] overflow-hidden bg-gradient-to-br from-indigo-600 to-violet-800">
         {game.cover_url ? (
           <img
@@ -97,7 +144,6 @@ export function GameCard({
         </span>
       </div>
 
-      {/* DETAILS */}
       <div className="p-4">
         <p className="text-xs font-bold uppercase tracking-[0.14em] text-indigo-600">
           {
@@ -111,7 +157,6 @@ export function GameCard({
           }
         </h2>
 
-        {/* PUBLISHER / RELEASE */}
         <div className="mt-3">
           <p className="text-sm font-semibold text-slate-700">
             {game.publisher ??
@@ -126,7 +171,6 @@ export function GameCard({
           </p>
         </div>
 
-        {/* GENRE */}
         <div className="mt-4 border-t border-slate-100 pt-3">
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">
             Genre
@@ -139,7 +183,6 @@ export function GameCard({
           </p>
         </div>
 
-        {/* RATING */}
         <div className="mt-4 flex items-center justify-between rounded-xl bg-slate-50 px-3 py-2">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-400">
@@ -166,7 +209,75 @@ export function GameCard({
           )}
         </div>
 
-        {/* REMOVE */}
+        {/* USER RATING */}
+        <div className="mt-4 rounded-xl border border-slate-200 bg-white p-3">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-400">
+              Your Rating
+            </p>
+
+            {game.user_rating && (
+              <span className="text-xs font-bold text-slate-500">
+                {game.user_rating}/5
+              </span>
+            )}
+          </div>
+
+          <div
+            className="mt-2 flex items-center gap-1"
+            onMouseLeave={() =>
+              setHoverRating(
+                null,
+              )
+            }
+          >
+            {[1, 2, 3, 4, 5].map(
+              (
+                star,
+              ) => (
+                <button
+                  key={
+                    star
+                  }
+                  type="button"
+                  disabled={
+                    isSavingRating
+                  }
+                  onMouseEnter={() =>
+                    setHoverRating(
+                      star,
+                    )
+                  }
+                  onClick={() =>
+                    void handleRating(
+                      star,
+                    )
+                  }
+                  aria-label={`Rate ${game.title} ${star} out of 5`}
+                  className="text-2xl leading-none transition hover:scale-110 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <span
+                    className={
+                      star <=
+                      displayedRating
+                        ? "text-amber-400"
+                        : "text-slate-300"
+                    }
+                  >
+                    ★
+                  </span>
+                </button>
+              ),
+            )}
+          </div>
+
+          {!game.user_rating && (
+            <p className="mt-2 text-xs text-slate-400">
+              Click a star to rate this game.
+            </p>
+          )}
+        </div>
+
         <div className="mt-4 border-t border-slate-100 pt-3">
           <button
             type="button"

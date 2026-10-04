@@ -419,6 +419,9 @@ export function GameForm({
           gameData
             ?.rating ??
           null,
+
+        user_rating:
+          null,
       });
 
       setTitle("");

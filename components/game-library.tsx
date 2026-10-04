@@ -77,7 +77,7 @@ export function GameLibrary() {
           "games",
         )
         .select(
-          "id, title, platform, status, cover_url, publisher, release_date, genres, rating",
+          "id, title, platform, status, cover_url, publisher, release_date, genres, rating, user_rating",
         )
         .order(
           "created_at",
@@ -176,12 +176,15 @@ export function GameLibrary() {
         rating:
           newGame.rating,
 
+        user_rating:
+          newGame.user_rating,
+
         user_id:
           userData
             .user.id,
       })
       .select(
-        "id, title, platform, status, cover_url, publisher, release_date, genres, rating",
+        "id, title, platform, status, cover_url, publisher, release_date, genres, rating, user_rating",
       )
       .single();
 
@@ -206,6 +209,59 @@ export function GameLibrary() {
         data as Game,
         ...currentGames,
       ],
+    );
+  }
+
+  async function updateUserRating(
+    gameId: string,
+    rating: number,
+  ) {
+    setError("");
+
+    const {
+      error:
+        updateError,
+    } = await supabase
+      .from("games")
+      .update({
+        user_rating:
+          rating,
+      })
+      .eq(
+        "id",
+        gameId,
+      );
+
+    if (
+      updateError
+    ) {
+      console.error(
+        "Rating update failed:",
+        updateError,
+      );
+
+      setError(
+        "Your rating could not be saved.",
+      );
+
+      return;
+    }
+
+    setGames(
+      (
+        currentGames,
+      ) =>
+        currentGames.map(
+          (game) =>
+            game.id ===
+            gameId
+              ? {
+                  ...game,
+                  user_rating:
+                    rating,
+                }
+              : game,
+        ),
     );
   }
 
@@ -341,6 +397,18 @@ export function GameLibrary() {
             );
           }
 
+          if (
+            sortOrder ===
+            "user-rating"
+          ) {
+            return (
+              (gameB.user_rating ??
+                0) -
+              (gameA.user_rating ??
+                0)
+            );
+          }
+
           return gameA.title.localeCompare(
             gameB.title,
           );
@@ -450,6 +518,10 @@ export function GameLibrary() {
               <option value="platform">
                 Platform
               </option>
+
+              <option value="user-rating">
+                Your Rating
+              </option>
             </select>
           </label>
         </div>
@@ -498,6 +570,9 @@ export function GameLibrary() {
                 }
                 onDelete={
                   deleteGame
+                }
+                onRate={
+                  updateUserRating
                 }
               />
             ),

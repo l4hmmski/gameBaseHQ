@@ -143,7 +143,6 @@ export function GameForm({
 
             if (!response.ok) {
               setSuggestions([]);
-
               return;
             }
 
@@ -288,9 +287,7 @@ export function GameForm({
       });
 
       setTitle("");
-
       setPlatform("");
-
       setStatus("Backlog");
 
       setSelectedCoverUrl(
@@ -324,11 +321,11 @@ export function GameForm({
     >
       <div className="mb-6">
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-600">
-          New game
+          New Game
         </p>
 
         <h2 className="mt-2 text-2xl font-bold tracking-tight text-slate-950">
-          Add to your library
+          Add to Your Library
         </h2>
 
         <p className="mt-2 text-sm leading-6 text-slate-600">
@@ -346,7 +343,7 @@ export function GameForm({
           className="relative"
         >
           <label className="grid gap-2 text-sm font-semibold text-slate-800">
-            Game title
+            Game Title
 
             <div className="relative">
               <input
@@ -370,7 +367,7 @@ export function GameForm({
                     );
                   }
                 }}
-                placeholder="Start typing..."
+                placeholder="Start Typing..."
                 autoComplete="off"
                 className="h-12 w-full rounded-xl border border-slate-300 bg-white px-4 pr-10 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
               />
@@ -471,7 +468,7 @@ export function GameForm({
             className="h-12 rounded-xl border border-slate-300 bg-white px-4 text-slate-950 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
           >
             <option value="">
-              Select platform
+              Select Platform
             </option>
 
             {platforms.map(
@@ -537,7 +534,7 @@ export function GameForm({
 
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.15em] text-indigo-600">
-              Selected game
+              Selected Game
             </p>
 
             <p className="mt-1 font-bold text-slate-950">
@@ -561,8 +558,8 @@ export function GameForm({
         className="mt-5 inline-flex h-12 items-center justify-center rounded-xl bg-indigo-600 px-6 font-bold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-slate-400"
       >
         {isSubmitting
-          ? "Adding game..."
-          : "Add game"}
+          ? "Adding Game..."
+          : "Add Game"}
       </button>
     </form>
   );

@@ -104,7 +104,7 @@ export function Navbar() {
             </p>
 
             <p className="text-xs font-semibold text-slate-500">
-              Track your collection
+              Track Your Collection
             </p>
           </div>
         </Link>
@@ -161,14 +161,14 @@ export function Navbar() {
                     : "text-slate-600 hover:bg-slate-100 hover:text-slate-950"
                 }`}
               >
-                Log in
+                Log In
               </Link>
 
               <Link
                 href="/signup"
                 className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-indigo-700"
               >
-                Sign up
+                Sign Up
               </Link>
             </>
           )}
@@ -188,7 +188,7 @@ export function Navbar() {
                 onClick={handleLogout}
                 className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50 hover:text-slate-950"
               >
-                Log out
+                Log Out
               </button>
             </>
           )}

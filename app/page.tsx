@@ -25,13 +25,13 @@ export default function HomePage() {
           {/* LEFT SIDE */}
           <div>
             <p className="text-sm font-bold uppercase tracking-[0.2em] text-indigo-600">
-              Your personal collection
+              Your Personal Collection
             </p>
 
             <h1 className="mt-4 max-w-3xl text-5xl font-black tracking-tight text-slate-950 sm:text-6xl">
-              Every game you own.
+              Every Game You Own.
               <span className="block text-indigo-600">
-                All in one place.
+                All in One Place.
               </span>
             </h1>
 
@@ -48,32 +48,31 @@ export default function HomePage() {
                 href="/library"
                 className="rounded-xl bg-indigo-600 px-6 py-3 font-bold text-white shadow-sm transition hover:bg-indigo-700"
               >
-                View my library
+                View My Library
               </Link>
 
               <Link
                 href="/profile"
                 className="rounded-xl border border-slate-300 bg-white px-6 py-3 font-bold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
               >
-                My account
+                My Account
               </Link>
             </div>
           </div>
 
-          {/* RIGHT SIDE - GAME PREVIEW */}
+          {/* RIGHT SIDE */}
           <div className="relative">
             <div className="absolute -inset-4 rounded-[2rem] bg-indigo-100 blur-2xl" />
 
             <div className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-slate-950 p-6 shadow-2xl">
-              {/* HEADER */}
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-400">
-                    Your library
+                    Your Library
                   </p>
 
                   <h2 className="mt-2 text-2xl font-black text-white">
-                    Currently playing
+                    Currently Playing
                   </h2>
                 </div>
 
@@ -82,7 +81,6 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* GAME COVERS */}
               <div className="mt-8 grid grid-cols-3 gap-3">
                 {featuredGames.map(
                   (game) => (
@@ -96,10 +94,8 @@ export default function HomePage() {
                         className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
                       />
 
-                      {/* DARK GRADIENT */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
 
-                      {/* GAME TITLE */}
                       <p className="absolute bottom-3 left-3 right-3 text-xs font-bold leading-tight text-white sm:text-sm">
                         {game.title}
                       </p>
@@ -108,7 +104,6 @@ export default function HomePage() {
                 )}
               </div>
 
-              {/* FAKE DEMO STATS */}
               <div className="mt-6 grid grid-cols-3 gap-3 border-t border-slate-800 pt-6">
                 <div>
                   <p className="text-2xl font-black text-white">
@@ -149,12 +144,12 @@ export default function HomePage() {
       <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8">
         <div className="max-w-2xl">
           <p className="text-sm font-bold uppercase tracking-[0.2em] text-indigo-600">
-            Simple organisation
+            Simple Organisation
           </p>
 
           <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
-            Your collection without the
-            clutter.
+            Your Collection Without the
+            Clutter.
           </h2>
 
           <p className="mt-4 text-lg leading-8 text-slate-600">
@@ -165,14 +160,13 @@ export default function HomePage() {
         </div>
 
         <div className="mt-10 grid gap-6 md:grid-cols-3">
-          {/* FEATURE 1 */}
           <section className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-100 text-xl font-black text-indigo-700">
               01
             </div>
 
             <h3 className="mt-6 text-xl font-black text-slate-950">
-              Build your library
+              Build Your Library
             </h3>
 
             <p className="mt-3 leading-7 text-slate-600">
@@ -182,14 +176,13 @@ export default function HomePage() {
             </p>
           </section>
 
-          {/* FEATURE 2 */}
           <section className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-100 text-xl font-black text-indigo-700">
               02
             </div>
 
             <h3 className="mt-6 text-xl font-black text-slate-950">
-              Track progress
+              Track Progress
             </h3>
 
             <p className="mt-3 leading-7 text-slate-600">
@@ -199,14 +192,13 @@ export default function HomePage() {
             </p>
           </section>
 
-          {/* FEATURE 3 */}
           <section className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-100 text-xl font-black text-indigo-700">
               03
             </div>
 
             <h3 className="mt-6 text-xl font-black text-slate-950">
-              Organise every platform
+              Organise Every Platform
             </h3>
 
             <p className="mt-3 leading-7 text-slate-600">

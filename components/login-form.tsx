@@ -62,7 +62,7 @@ export function LoginForm() {
       "
     >
       <h1 className="text-3xl font-bold text-black">
-        Log in
+        Log In
       </h1>
 
       <p className="mt-2 text-gray-800">
@@ -146,8 +146,8 @@ export function LoginForm() {
         "
       >
         {isSubmitting
-          ? "Logging in..."
-          : "Log in"}
+          ? "Logging In..."
+          : "Log In"}
       </button>
 
       <p className="mt-6 text-center text-gray-800">
@@ -159,7 +159,7 @@ export function LoginForm() {
             hover:underline
           "
         >
-          Sign up
+          Sign Up
         </Link>
       </p>
     </form>

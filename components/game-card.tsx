@@ -70,7 +70,7 @@ export function GameCard({
             }
             className="text-sm font-bold text-red-600 transition hover:text-red-800"
           >
-            Remove from library
+            Remove From Library
           </button>
         </div>
       </div>

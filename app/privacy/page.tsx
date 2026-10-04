@@ -1,7 +1,6 @@
 export default function PrivacyPage() {
   return (
     <main className="bg-slate-50">
-      {/* HEADER */}
       <section className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-4xl px-5 py-16 sm:px-8">
           <p className="text-sm font-bold uppercase tracking-[0.2em] text-indigo-600">
@@ -13,7 +12,7 @@ export default function PrivacyPage() {
           </h1>
 
           <p className="mt-4 text-slate-500">
-            Last updated: October 2026
+            Last Updated: October 2026
           </p>
 
           <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
@@ -26,13 +25,12 @@ export default function PrivacyPage() {
         </div>
       </section>
 
-      {/* CONTENT */}
       <section className="mx-auto max-w-4xl px-5 py-12 sm:px-8">
         <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm sm:p-10">
           <div className="space-y-10">
             <section>
               <h2 className="text-xl font-black text-slate-950">
-                1. Information we collect
+                1. Information We Collect
               </h2>
 
               <p className="mt-3 leading-7 text-slate-600">
@@ -49,7 +47,7 @@ export default function PrivacyPage() {
 
             <section>
               <h2 className="text-xl font-black text-slate-950">
-                2. Account information
+                2. Account Information
               </h2>
 
               <p className="mt-3 leading-7 text-slate-600">
@@ -66,7 +64,7 @@ export default function PrivacyPage() {
 
             <section>
               <h2 className="text-xl font-black text-slate-950">
-                3. Game library information
+                3. Game Library Information
               </h2>
 
               <p className="mt-3 leading-7 text-slate-600">
@@ -81,7 +79,7 @@ export default function PrivacyPage() {
 
             <section>
               <h2 className="text-xl font-black text-slate-950">
-                4. Third-party services
+                4. Third-Party Services
               </h2>
 
               <p className="mt-3 leading-7 text-slate-600">
@@ -98,7 +96,7 @@ export default function PrivacyPage() {
 
             <section>
               <h2 className="text-xl font-black text-slate-950">
-                5. How information is used
+                5. How Information Is Used
               </h2>
 
               <p className="mt-3 leading-7 text-slate-600">
@@ -115,7 +113,7 @@ export default function PrivacyPage() {
 
             <section>
               <h2 className="text-xl font-black text-slate-950">
-                6. Data security
+                6. Data Security
               </h2>
 
               <p className="mt-3 leading-7 text-slate-600">
@@ -131,7 +129,7 @@ export default function PrivacyPage() {
 
             <section>
               <h2 className="text-xl font-black text-slate-950">
-                7. Changes to this policy
+                7. Changes to This Policy
               </h2>
 
               <p className="mt-3 leading-7 text-slate-600">

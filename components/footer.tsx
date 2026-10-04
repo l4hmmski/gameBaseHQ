@@ -5,7 +5,6 @@ export function Footer() {
     <footer className="border-t border-slate-200 bg-white">
       <div className="mx-auto max-w-7xl px-5 py-10 sm:px-8">
         <div className="grid gap-10 md:grid-cols-[1fr_auto] md:items-start">
-          {/* BRAND */}
           <div>
             <Link
               href="/"
@@ -21,7 +20,7 @@ export function Footer() {
                 </p>
 
                 <p className="text-sm text-slate-500">
-                  Track your collection
+                  Track Your Collection
                 </p>
               </div>
             </Link>
@@ -35,7 +34,6 @@ export function Footer() {
             </p>
           </div>
 
-          {/* LINKS */}
           <div>
             <p className="mb-4 text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
               Information
@@ -82,7 +80,6 @@ export function Footer() {
           </div>
         </div>
 
-        {/* BOTTOM ROW */}
         <div className="mt-10 flex flex-col gap-3 border-t border-slate-100 pt-6 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
           <p>
             © {new Date().getFullYear()} Game

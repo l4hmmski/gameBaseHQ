@@ -3,7 +3,6 @@ import Link from "next/link";
 export default function AboutPage() {
   return (
     <main className="bg-slate-50">
-      {/* HEADER */}
       <section className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-4xl px-5 py-16 sm:px-8">
           <p className="text-sm font-bold uppercase tracking-[0.2em] text-indigo-600">
@@ -11,9 +10,9 @@ export default function AboutPage() {
           </p>
 
           <h1 className="mt-3 text-4xl font-black tracking-tight text-slate-950 sm:text-5xl">
-            Your games.
+            Your Games.
             <span className="block text-indigo-600">
-              One simple library.
+              One Simple Library.
             </span>
           </h1>
 
@@ -25,7 +24,6 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* CONTENT */}
       <section className="mx-auto max-w-4xl px-5 py-12 sm:px-8">
         <div className="space-y-6">
           <article className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
@@ -44,7 +42,7 @@ export default function AboutPage() {
 
           <article className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
             <h2 className="text-2xl font-black text-slate-950">
-              Track your progress
+              Track Your Progress
             </h2>
 
             <p className="mt-4 leading-7 text-slate-600">
@@ -60,7 +58,7 @@ export default function AboutPage() {
 
           <article className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
             <h2 className="text-2xl font-black text-slate-950">
-              Game information
+              Game Information
             </h2>
 
             <p className="mt-4 leading-7 text-slate-600">
@@ -76,7 +74,7 @@ export default function AboutPage() {
             href="/"
             className="inline-flex rounded-xl bg-indigo-600 px-6 py-3 font-bold text-white shadow-sm transition hover:bg-indigo-700"
           >
-            Back to home
+            Back to Home
           </Link>
         </div>
       </section>

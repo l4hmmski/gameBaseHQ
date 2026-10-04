@@ -12,7 +12,7 @@ export default function ProfilePage() {
             </p>
 
             <h1 className="mt-3 text-4xl font-black tracking-tight text-slate-950 sm:text-5xl">
-              Your profile
+              Your Profile
             </h1>
 
             <p className="mt-4 max-w-2xl text-lg leading-8 text-slate-600">

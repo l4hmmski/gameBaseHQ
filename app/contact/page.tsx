@@ -3,7 +3,6 @@ import Link from "next/link";
 export default function ContactPage() {
   return (
     <main className="bg-slate-50">
-      {/* HEADER */}
       <section className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-4xl px-5 py-16 sm:px-8">
           <p className="text-sm font-bold uppercase tracking-[0.2em] text-indigo-600">
@@ -11,7 +10,7 @@ export default function ContactPage() {
           </p>
 
           <h1 className="mt-3 text-4xl font-black tracking-tight text-slate-950 sm:text-5xl">
-            Need some help?
+            Need Some Help?
           </h1>
 
           <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
@@ -22,7 +21,6 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* CONTENT */}
       <section className="mx-auto max-w-4xl px-5 py-12 sm:px-8">
         <div className="grid gap-6 md:grid-cols-2">
           <article className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
@@ -63,7 +61,7 @@ export default function ContactPage() {
 
         <div className="mt-6 rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
           <h2 className="text-2xl font-black text-slate-950">
-            Contact details
+            Contact Details
           </h2>
 
           <p className="mt-4 max-w-2xl leading-7 text-slate-600">
@@ -85,7 +83,7 @@ export default function ContactPage() {
             href="/"
             className="inline-flex rounded-xl bg-indigo-600 px-6 py-3 font-bold text-white shadow-sm transition hover:bg-indigo-700"
           >
-            Back to home
+            Back to Home
           </Link>
         </div>
       </section>

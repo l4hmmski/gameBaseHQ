@@ -108,16 +108,12 @@ export function GameLibrary() {
       .from("games")
       .insert({
         title: newGame.title,
-
         platform:
           newGame.platform,
-
         status:
           newGame.status,
-
         cover_url:
           newGame.cover_url,
-
         user_id:
           userData.user.id,
       })
@@ -311,7 +307,7 @@ export function GameLibrary() {
           </label>
 
           <label className="grid gap-2 text-sm font-semibold text-slate-800">
-            Sort by
+            Sort By
 
             <select
               value={sortOrder}
@@ -344,7 +340,7 @@ export function GameLibrary() {
       <div className="flex items-end justify-between gap-4">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-600">
-            Your collection
+            Your Collection
           </p>
 
           <h2 className="mt-1 text-2xl font-bold text-slate-950">
@@ -369,8 +365,8 @@ export function GameLibrary() {
       {isLoading ? (
         <div className="rounded-3xl border border-slate-200 bg-white p-12 text-center shadow-sm">
           <p className="font-semibold text-slate-700">
-            Loading your
-            games...
+            Loading Your
+            Games...
           </p>
         </div>
       ) : visibleGames.length >
@@ -391,7 +387,7 @@ export function GameLibrary() {
       ) : (
         <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-12 text-center">
           <h2 className="text-xl font-bold text-slate-950">
-            No games found
+            No Games Found
           </h2>
 
           <p className="mt-2 text-slate-600">

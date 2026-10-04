@@ -1,7 +1,6 @@
 export default function TermsPage() {
   return (
     <main className="bg-slate-50">
-      {/* HEADER */}
       <section className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-4xl px-5 py-16 sm:px-8">
           <p className="text-sm font-bold uppercase tracking-[0.2em] text-indigo-600">
@@ -13,7 +12,7 @@ export default function TermsPage() {
           </h1>
 
           <p className="mt-4 text-slate-500">
-            Last updated: October 2026
+            Last Updated: October 2026
           </p>
 
           <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
@@ -24,13 +23,12 @@ export default function TermsPage() {
         </div>
       </section>
 
-      {/* CONTENT */}
       <section className="mx-auto max-w-4xl px-5 py-12 sm:px-8">
         <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm sm:p-10">
           <div className="space-y-10">
             <section>
               <h2 className="text-xl font-black text-slate-950">
-                1. Acceptance of these terms
+                1. Acceptance of These Terms
               </h2>
 
               <p className="mt-3 leading-7 text-slate-600">
@@ -44,7 +42,7 @@ export default function TermsPage() {
 
             <section>
               <h2 className="text-xl font-black text-slate-950">
-                2. Your account
+                2. Your Account
               </h2>
 
               <p className="mt-3 leading-7 text-slate-600">
@@ -58,7 +56,7 @@ export default function TermsPage() {
 
             <section>
               <h2 className="text-xl font-black text-slate-950">
-                3. Acceptable use
+                3. Acceptable Use
               </h2>
 
               <p className="mt-3 leading-7 text-slate-600">
@@ -75,7 +73,7 @@ export default function TermsPage() {
 
             <section>
               <h2 className="text-xl font-black text-slate-950">
-                4. Game information and artwork
+                4. Game Information and Artwork
               </h2>
 
               <p className="mt-3 leading-7 text-slate-600">
@@ -93,7 +91,7 @@ export default function TermsPage() {
 
             <section>
               <h2 className="text-xl font-black text-slate-950">
-                5. Third-party services
+                5. Third-Party Services
               </h2>
 
               <p className="mt-3 leading-7 text-slate-600">
@@ -109,7 +107,7 @@ export default function TermsPage() {
 
             <section>
               <h2 className="text-xl font-black text-slate-950">
-                6. Service availability
+                6. Service Availability
               </h2>
 
               <p className="mt-3 leading-7 text-slate-600">
@@ -124,7 +122,7 @@ export default function TermsPage() {
 
             <section>
               <h2 className="text-xl font-black text-slate-950">
-                7. Limitation of liability
+                7. Limitation of Liability
               </h2>
 
               <p className="mt-3 leading-7 text-slate-600">
@@ -143,7 +141,7 @@ export default function TermsPage() {
 
             <section>
               <h2 className="text-xl font-black text-slate-950">
-                8. Changes to these terms
+                8. Changes to These Terms
               </h2>
 
               <p className="mt-3 leading-7 text-slate-600">

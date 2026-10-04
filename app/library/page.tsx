@@ -8,7 +8,7 @@ export default function LibraryPage() {
         <section className="border-b border-slate-200 bg-white">
           <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8">
             <p className="text-sm font-bold uppercase tracking-[0.2em] text-indigo-600">
-              Personal collection
+              Personal Collection
             </p>
 
             <h1 className="mt-3 text-4xl font-black tracking-tight text-slate-950 sm:text-5xl">

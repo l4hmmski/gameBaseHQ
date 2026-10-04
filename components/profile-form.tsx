@@ -260,7 +260,7 @@ export function ProfileForm() {
         <div className="mx-auto h-10 w-10 animate-pulse rounded-full bg-indigo-100" />
 
         <p className="mt-4 font-semibold text-slate-700">
-          Loading your profile...
+          Loading Your Profile...
         </p>
       </section>
     );
@@ -280,7 +280,7 @@ export function ProfileForm() {
             <h2 className="mt-4 text-xl font-black text-slate-950">
               {displayName ||
                 username ||
-                "Your profile"}
+                "Your Profile"}
             </h2>
 
             {username && (
@@ -298,7 +298,7 @@ export function ProfileForm() {
         <section className="grid grid-cols-2 gap-4 lg:grid-cols-1">
           <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">
-              Games collected
+              Games Collected
             </p>
 
             <p className="mt-2 text-4xl font-black tracking-tight text-slate-950">
@@ -306,13 +306,13 @@ export function ProfileForm() {
             </p>
 
             <p className="mt-1 text-sm text-slate-500">
-              In your library
+              In Your Library
             </p>
           </div>
 
           <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">
-              Member since
+              Member Since
             </p>
 
             <p className="mt-2 font-bold text-slate-950">
@@ -320,7 +320,7 @@ export function ProfileForm() {
             </p>
 
             <p className="mt-1 text-sm text-slate-500">
-              Account created
+              Account Created
             </p>
           </div>
         </section>
@@ -328,7 +328,7 @@ export function ProfileForm() {
         {favouritePlatform && (
           <section className="rounded-3xl border border-indigo-100 bg-indigo-50 p-5">
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-indigo-600">
-              Favourite platform
+              Favourite Platform
             </p>
 
             <p className="mt-2 text-lg font-black text-indigo-950">
@@ -344,11 +344,11 @@ export function ProfileForm() {
       >
         <div className="border-b border-slate-100 pb-6">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-600">
-            Account details
+            Account Details
           </p>
 
           <h2 className="mt-2 text-2xl font-black tracking-tight text-slate-950">
-            Profile information
+            Profile Information
           </h2>
 
           <p className="mt-2 max-w-2xl leading-7 text-slate-600">
@@ -372,7 +372,7 @@ export function ProfileForm() {
                   event.target.value,
                 )
               }
-              placeholder="Your username"
+              placeholder="Your Username"
               className="h-12 rounded-xl border border-slate-300 bg-white px-4 text-slate-950 outline-none placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
             />
 
@@ -384,7 +384,7 @@ export function ProfileForm() {
 
           <label className="grid gap-2">
             <span className="text-sm font-bold text-slate-800">
-              Display name
+              Display Name
             </span>
 
             <input
@@ -395,7 +395,7 @@ export function ProfileForm() {
                   event.target.value,
                 )
               }
-              placeholder="Your name"
+              placeholder="Your Name"
               className="h-12 rounded-xl border border-slate-300 bg-white px-4 text-slate-950 outline-none placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
             />
 
@@ -408,7 +408,7 @@ export function ProfileForm() {
 
         <label className="mt-6 grid gap-2">
           <span className="text-sm font-bold text-slate-800">
-            Favourite platform
+            Favourite Platform
           </span>
 
           <select
@@ -421,7 +421,7 @@ export function ProfileForm() {
             className="h-12 rounded-xl border border-slate-300 bg-white px-4 text-slate-950 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
           >
             <option value="">
-              Select a platform
+              Select a Platform
             </option>
 
             {platforms.map(
@@ -480,7 +480,7 @@ export function ProfileForm() {
           >
             {isSaving
               ? "Saving..."
-              : "Save profile"}
+              : "Save Profile"}
           </button>
         </div>
       </form>

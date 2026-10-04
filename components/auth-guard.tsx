@@ -65,7 +65,7 @@ export function AuthGuard({
         "
       >
         <p className="font-medium text-gray-800">
-          Checking your account...
+          Checking Your Account...
         </p>
       </main>
     );

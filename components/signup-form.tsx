@@ -94,7 +94,7 @@ export function SignupForm() {
       "
     >
       <h1 className="text-3xl font-bold text-black">
-        Create account
+        Create Account
       </h1>
 
       <p className="mt-2 text-gray-800">
@@ -156,7 +156,7 @@ export function SignupForm() {
 
       <label className="mt-5 block space-y-2">
         <span className="font-semibold text-black">
-          Confirm password
+          Confirm Password
         </span>
 
         <input
@@ -218,8 +218,8 @@ export function SignupForm() {
         "
       >
         {isSubmitting
-          ? "Creating account..."
-          : "Create account"}
+          ? "Creating Account..."
+          : "Create Account"}
       </button>
 
       <p className="mt-6 text-center text-gray-800">
@@ -231,7 +231,7 @@ export function SignupForm() {
             hover:underline
           "
         >
-          Log in
+          Log In
         </Link>
       </p>
     </form>

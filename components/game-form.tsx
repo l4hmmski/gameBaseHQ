@@ -118,9 +118,6 @@ export function GameForm({
       title.trim();
 
     if (cleanTitle.length < 2) {
-      setSuggestions([]);
-      setIsSearching(false);
-
       return;
     }
 
@@ -203,11 +200,15 @@ export function GameForm({
 
     setError("");
 
-    if (value.trim().length >= 2) {
-      setShowSuggestions(
-        true,
-      );
+    if (value.trim().length < 2) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      setIsSearching(false);
+
+      return;
     }
+
+    setShowSuggestions(true);
   }
 
   function handleSuggestionClick(
@@ -257,11 +258,6 @@ export function GameForm({
       let coverUrl =
         selectedCoverUrl;
 
-      /*
-        If the user typed a title but did
-        not click a suggestion, try to use
-        the first IGDB search result.
-      */
       if (!coverUrl) {
         const response =
           await fetch(
@@ -280,12 +276,6 @@ export function GameForm({
           if (firstGame) {
             coverUrl =
               firstGame.coverUrl;
-
-            /*
-              Keep the user's typed title
-              instead of replacing it
-              automatically.
-            */
           }
         }
       }
@@ -349,7 +339,6 @@ export function GameForm({
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        {/* GAME TITLE */}
         <div
           ref={
             searchContainerRef
@@ -392,7 +381,6 @@ export function GameForm({
             </div>
           </label>
 
-          {/* AUTOCOMPLETE */}
           {showSuggestions &&
             title.trim()
               .length >= 2 && (
@@ -467,7 +455,6 @@ export function GameForm({
             )}
         </div>
 
-        {/* PLATFORM */}
         <label className="grid gap-2 text-sm font-semibold text-slate-800">
           Platform
 
@@ -508,7 +495,6 @@ export function GameForm({
           </select>
         </label>
 
-        {/* STATUS */}
         <label className="grid gap-2 text-sm font-semibold text-slate-800">
           Status
 

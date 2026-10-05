@@ -10,11 +10,17 @@ import {
   track,
 } from "@vercel/analytics";
 
-import { GameCard } from "@/components/game-card";
-import { GameForm } from "@/components/game-form";
-import { LibraryStats } from "@/components/library-stats";
+import {
+  GameCard,
+} from "@/components/game-card";
 
-import { supabase } from "@/lib/supabase";
+import {
+  GameForm,
+} from "@/components/game-form";
+
+import {
+  supabase,
+} from "@/lib/supabase";
 
 import type {
   Game,
@@ -50,6 +56,27 @@ type FilterOption =
   | "Wishlist"
   | GameStatus;
 
+const GAME_SELECT = `
+  id,
+  igdb_id,
+  steam_app_id,
+  title,
+  platform,
+  status,
+  cover_url,
+  publisher,
+  release_date,
+  genres,
+  rating,
+  user_rating,
+  notes,
+  is_wishlist,
+  steam_playtime_minutes,
+  steam_playtime_2weeks,
+  steam_last_played_at,
+  steam_synced_at
+`;
+
 export function GameLibrary() {
   const [
     games,
@@ -60,7 +87,8 @@ export function GameLibrary() {
   const [
     search,
     setSearch,
-  ] = useState("");
+  ] =
+    useState("");
 
   const [
     filter,
@@ -81,12 +109,14 @@ export function GameLibrary() {
   const [
     isLoading,
     setIsLoading,
-  ] = useState(true);
+  ] =
+    useState(true);
 
   const [
     error,
     setError,
-  ] = useState("");
+  ] =
+    useState("");
 
   useEffect(() => {
     async function loadGames() {
@@ -94,18 +124,21 @@ export function GameLibrary() {
         data,
         error:
           loadError,
-      } = await supabase
-        .from("games")
-        .select(
-          "id, igdb_id, title, platform, status, cover_url, publisher, release_date, genres, rating, user_rating, notes, is_wishlist",
-        )
-        .order(
-          "created_at",
-          {
-            ascending:
-              false,
-          },
-        );
+      } =
+        await supabase
+          .from(
+            "games",
+          )
+          .select(
+            GAME_SELECT,
+          )
+          .order(
+            "created_at",
+            {
+              ascending:
+                false,
+            },
+          );
 
       if (
         loadError
@@ -167,11 +200,16 @@ export function GameLibrary() {
 
     let duplicateQuery =
       supabase
-        .from("games")
-        .select("id")
+        .from(
+          "games",
+        )
+        .select(
+          "id",
+        )
         .eq(
           "user_id",
-          userData.user.id,
+          userData
+            .user.id,
         )
         .eq(
           "platform",
@@ -198,30 +236,12 @@ export function GameLibrary() {
     const {
       data:
         duplicateGame,
-
-      error:
-        duplicateError,
     } =
       await duplicateQuery
-        .limit(1)
+        .limit(
+          1,
+        )
         .maybeSingle();
-
-    if (
-      duplicateError
-    ) {
-      console.error(
-        "Duplicate check failed:",
-        duplicateError,
-      );
-
-      return {
-        success:
-          false,
-
-        error:
-          "The game could not be checked before saving.",
-      };
-    }
 
     if (
       duplicateGame
@@ -239,60 +259,60 @@ export function GameLibrary() {
       data,
       error:
         insertError,
-    } = await supabase
-      .from("games")
-      .insert({
-        igdb_id:
-          newGame.igdb_id,
+    } =
+      await supabase
+        .from(
+          "games",
+        )
+        .insert({
+          igdb_id:
+            newGame.igdb_id,
 
-        title:
-          newGame.title,
+          title:
+            newGame.title,
 
-        platform:
-          newGame.platform,
+          platform:
+            newGame.platform,
 
-        status:
-          newGame.status,
+          status:
+            newGame.status,
 
-        cover_url:
-          newGame.cover_url,
+          cover_url:
+            newGame.cover_url,
 
-        publisher:
-          newGame.publisher,
+          publisher:
+            newGame.publisher,
 
-        release_date:
-          newGame.release_date,
+          release_date:
+            newGame.release_date,
 
-        genres:
-          newGame.genres,
+          genres:
+            newGame.genres,
 
-        rating:
-          newGame.rating,
+          rating:
+            newGame.rating,
 
-        user_rating:
-          newGame.user_rating,
+          user_rating:
+            newGame.user_rating,
 
-        notes:
-          newGame.notes,
+          notes:
+            newGame.notes,
 
-        is_wishlist:
-          newGame.is_wishlist,
+          is_wishlist:
+            newGame.is_wishlist,
 
-        user_id:
-          userData.user.id,
-      })
-      .select(
-        "id, igdb_id, title, platform, status, cover_url, publisher, release_date, genres, rating, user_rating, notes, is_wishlist",
-      )
-      .single();
+          user_id:
+            userData
+              .user.id,
+        })
+        .select(
+          GAME_SELECT,
+        )
+        .single();
 
     if (
       insertError
     ) {
-      console.error(
-        insertError,
-      );
-
       if (
         insertError.code ===
         "23505"
@@ -317,10 +337,10 @@ export function GameLibrary() {
 
     setGames(
       (
-        currentGames,
+        current,
       ) => [
         data as Game,
-        ...currentGames,
+        ...current,
       ],
     );
 
@@ -348,62 +368,50 @@ export function GameLibrary() {
     updates:
       GameUpdates,
   ): Promise<UpdateGameResult> {
-    setError("");
-
     const {
       data,
       error:
         updateError,
-    } = await supabase
-      .from("games")
-      .update(
-        updates,
-      )
-      .eq(
-        "id",
-        gameId,
-      )
-      .select(
-        "id, igdb_id, title, platform, status, cover_url, publisher, release_date, genres, rating, user_rating, notes, is_wishlist",
-      )
-      .single();
+    } =
+      await supabase
+        .from(
+          "games",
+        )
+        .update(
+          updates,
+        )
+        .eq(
+          "id",
+          gameId,
+        )
+        .select(
+          GAME_SELECT,
+        )
+        .single();
 
     if (
       updateError
     ) {
-      console.error(
-        "Game update failed:",
-        updateError,
-      );
-
-      if (
-        updateError.code ===
-        "23505"
-      ) {
-        return {
-          success:
-            false,
-
-          error:
-            "You already have this game on that platform.",
-        };
-      }
-
       return {
         success:
           false,
 
         error:
-          "Your changes could not be saved.",
+          updateError.code ===
+          "23505"
+            ? "You already have this game on that platform."
+            : "Your changes could not be saved.",
       };
     }
 
     setGames(
       (
-        currentGames,
+        current,
       ) =>
-        currentGames.map(
-          (game) =>
+        current.map(
+          (
+            game,
+          ) =>
             game.id ===
             gameId
               ? (data as Game)
@@ -421,14 +429,11 @@ export function GameLibrary() {
     gameId:
       string,
   ) {
-    setError("");
-
-    const confirmed =
-      window.confirm(
+    if (
+      !window.confirm(
         "Remove this game from your library?",
-      );
-
-    if (!confirmed) {
+      )
+    ) {
       return;
     }
 
@@ -437,7 +442,9 @@ export function GameLibrary() {
         deleteError,
     } =
       await supabase
-        .from("games")
+        .from(
+          "games",
+        )
         .delete()
         .eq(
           "id",
@@ -447,10 +454,6 @@ export function GameLibrary() {
     if (
       deleteError
     ) {
-      console.error(
-        deleteError,
-      );
-
       setError(
         "The game could not be removed.",
       );
@@ -460,10 +463,12 @@ export function GameLibrary() {
 
     setGames(
       (
-        currentGames,
+        current,
       ) =>
-        currentGames.filter(
-          (game) =>
+        current.filter(
+          (
+            game,
+          ) =>
             game.id !==
             gameId,
         ),
@@ -477,90 +482,61 @@ export function GameLibrary() {
           .trim()
           .toLowerCase();
 
-      const filteredGames =
-        games.filter(
-          (game) => {
-            const publisher =
-              game.publisher ??
-              "";
+      return [
+        ...games.filter(
+          (
+            game,
+          ) => {
+            const searchText =
+              [
+                game.title,
+                game.platform,
+                game.publisher ??
+                  "",
+                (
+                  game.genres ??
+                  []
+                ).join(
+                  " ",
+                ),
+              ]
+                .join(
+                  " ",
+                )
+                .toLowerCase();
 
-            const genreText =
-              (
-                game.genres ??
-                []
-              ).join(
-                " ",
+            const searchMatch =
+              searchText.includes(
+                cleanSearch,
               );
 
-            const notes =
-              game.notes ??
-              "";
-
-            const matchesSearch =
-              game.title
-                .toLowerCase()
-                .includes(
-                  cleanSearch,
-                ) ||
-              game.platform
-                .toLowerCase()
-                .includes(
-                  cleanSearch,
-                ) ||
-              publisher
-                .toLowerCase()
-                .includes(
-                  cleanSearch,
-                ) ||
-              genreText
-                .toLowerCase()
-                .includes(
-                  cleanSearch,
-                ) ||
-              notes
-                .toLowerCase()
-                .includes(
-                  cleanSearch,
-                );
-
-            let matchesFilter =
-              true;
-
-            if (
+            const filterMatch =
               filter ===
-              "Wishlist"
-            ) {
-              matchesFilter =
-                game.is_wishlist;
-            } else if (
-              filter !==
               "All"
-            ) {
-              matchesFilter =
-                game.status ===
-                filter;
-            }
+                ? true
+                : filter ===
+                    "Wishlist"
+                  ? game.is_wishlist
+                  : game.status ===
+                    filter;
 
             return (
-              matchesSearch &&
-              matchesFilter
+              searchMatch &&
+              filterMatch
             );
           },
-        );
-
-      return [
-        ...filteredGames,
+        ),
       ].sort(
         (
-          gameA,
-          gameB,
+          a,
+          b,
         ) => {
           if (
             sortOrder ===
             "title-descending"
           ) {
-            return gameB.title.localeCompare(
-              gameA.title,
+            return b.title.localeCompare(
+              a.title,
             );
           }
 
@@ -568,8 +544,8 @@ export function GameLibrary() {
             sortOrder ===
             "platform"
           ) {
-            return gameA.platform.localeCompare(
-              gameB.platform,
+            return a.platform.localeCompare(
+              b.platform,
             );
           }
 
@@ -578,9 +554,9 @@ export function GameLibrary() {
             "user-rating"
           ) {
             return (
-              (gameB.user_rating ??
+              (b.user_rating ??
                 0) -
-              (gameA.user_rating ??
+              (a.user_rating ??
                 0)
             );
           }
@@ -590,15 +566,27 @@ export function GameLibrary() {
             "igdb-rating"
           ) {
             return (
-              (gameB.rating ??
+              (b.rating ??
                 0) -
-              (gameA.rating ??
+              (a.rating ??
                 0)
             );
           }
 
-          return gameA.title.localeCompare(
-            gameB.title,
+          if (
+            sortOrder ===
+            "steam-playtime"
+          ) {
+            return (
+              (b.steam_playtime_minutes ??
+                0) -
+              (a.steam_playtime_minutes ??
+                0)
+            );
+          }
+
+          return a.title.localeCompare(
+            b.title,
           );
         },
       );
@@ -611,12 +599,6 @@ export function GameLibrary() {
 
   return (
     <section className="space-y-8">
-      <LibraryStats
-        games={
-          games
-        }
-      />
-
       <GameForm
         onAddGame={
           addGame
@@ -637,12 +619,13 @@ export function GameLibrary() {
                 event,
               ) =>
                 setSearch(
-                  event.target
+                  event
+                    .target
                     .value,
                 )
               }
-              placeholder="Search games, publishers, genres or notes"
-              className="h-11 rounded-xl border border-slate-300 bg-white px-4 text-slate-950 outline-none placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+              placeholder="Search Your Library"
+              className="h-11 rounded-xl border border-slate-300 bg-white px-4 outline-none focus:border-indigo-500"
             />
           </label>
 
@@ -657,11 +640,12 @@ export function GameLibrary() {
                 event,
               ) =>
                 setFilter(
-                  event.target
+                  event
+                    .target
                     .value as FilterOption,
                 )
               }
-              className="h-11 rounded-xl border border-slate-300 bg-white px-4 text-slate-950 outline-none"
+              className="h-11 rounded-xl border border-slate-300 bg-white px-4"
             >
               <option value="All">
                 All Games
@@ -696,11 +680,12 @@ export function GameLibrary() {
                 event,
               ) =>
                 setSortOrder(
-                  event.target
+                  event
+                    .target
                     .value,
                 )
               }
-              className="h-11 rounded-xl border border-slate-300 bg-white px-4 text-slate-950 outline-none"
+              className="h-11 rounded-xl border border-slate-300 bg-white px-4"
             >
               <option value="title-ascending">
                 Title A–Z
@@ -721,75 +706,71 @@ export function GameLibrary() {
               <option value="igdb-rating">
                 IGDB Rating
               </option>
+
+              <option value="steam-playtime">
+                Steam Playtime
+              </option>
             </select>
           </label>
         </div>
       </div>
 
-      <div className="flex items-end justify-between gap-4">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-600">
-            Your Collection
-          </p>
-
-          <h2 className="mt-1 text-2xl font-bold text-slate-950">
-            {
-              visibleGames.length
-            }
-
-            {visibleGames.length ===
-            1
-              ? " Game"
-              : " Games"}
-          </h2>
-        </div>
-      </div>
-
       {error && (
-        <p className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 font-medium text-red-700">
-          {error}
+        <p className="rounded-2xl border border-red-200 bg-red-50 p-4 text-red-700">
+          {
+            error
+          }
         </p>
       )}
 
-      {isLoading ? (
-        <div className="rounded-3xl border border-slate-200 bg-white p-12 text-center shadow-sm">
-          <p className="font-semibold text-slate-700">
-            Loading Your Games...
-          </p>
-        </div>
-      ) : visibleGames.length >
-        0 ? (
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {visibleGames.map(
-            (game) => (
-              <GameCard
-                key={
-                  game.id
-                }
-                game={
-                  game
-                }
-                onDelete={
-                  deleteGame
-                }
-                onUpdate={
-                  updateGame
-                }
-              />
-            ),
-          )}
-        </div>
-      ) : (
-        <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-12 text-center">
-          <h2 className="text-xl font-bold text-slate-950">
-            No Games Found
-          </h2>
-
-          <p className="mt-2 text-slate-600">
-            Add a game or change your search filters.
+      {isLoading && (
+        <div className="rounded-3xl border border-slate-200 bg-white p-10 text-center shadow-sm">
+          <p className="font-semibold text-slate-600">
+            Loading Your Library...
           </p>
         </div>
       )}
+
+      {!isLoading &&
+        visibleGames.length >
+          0 && (
+          <div className="grid items-stretch gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+            {visibleGames.map(
+              (
+                game,
+              ) => (
+                <GameCard
+                  key={
+                    game.id
+                  }
+                  game={
+                    game
+                  }
+                  onDelete={
+                    deleteGame
+                  }
+                  onUpdate={
+                    updateGame
+                  }
+                />
+              ),
+            )}
+          </div>
+        )}
+
+      {!isLoading &&
+        visibleGames.length ===
+          0 && (
+          <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center">
+            <h2 className="font-black text-slate-950">
+              No Games Found
+            </h2>
+
+            <p className="mt-2 text-sm text-slate-500">
+              Add a game or change your filters.
+            </p>
+          </div>
+        )}
     </section>
   );
 }

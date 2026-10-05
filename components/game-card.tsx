@@ -17,7 +17,6 @@ type GameUpdates = Partial<
     | "platform"
     | "status"
     | "user_rating"
-    | "notes"
     | "is_wishlist"
   >
 >;
@@ -27,7 +26,7 @@ type UpdateResult = {
   error?: string;
 };
 
-type GameCardProps = {
+type Props = {
   game: Game;
 
   onDelete: (
@@ -65,25 +64,53 @@ const statusStyles: Record<
     "bg-emerald-100 text-emerald-800",
 };
 
-function formatReleaseDate(
-  releaseDate:
-    | string
-    | null,
+function hours(
+  minutes:
+    | number
+    | null
+    | undefined,
 ) {
-  if (!releaseDate) {
-    return "Unknown";
+  if (!minutes) {
+    return "0h";
+  }
+
+  const value =
+    minutes / 60;
+
+  return value >= 100
+    ? `${Math.round(
+        value,
+      )}h`
+    : `${value.toFixed(
+        1,
+      )}h`;
+}
+
+function formatDate(
+  value:
+    | string
+    | null
+    | undefined,
+) {
+  if (!value) {
+    return null;
   }
 
   return new Intl.DateTimeFormat(
     "en-AU",
     {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
+      day:
+        "numeric",
+
+      month:
+        "short",
+
+      year:
+        "numeric",
     },
   ).format(
     new Date(
-      `${releaseDate}T00:00:00`,
+      value,
     ),
   );
 }
@@ -92,29 +119,18 @@ export function GameCard({
   game,
   onDelete,
   onUpdate,
-}: GameCardProps) {
+}: Props) {
   const [
     isEditing,
     setIsEditing,
-  ] = useState(false);
+  ] =
+    useState(false);
 
   const [
     isSaving,
     setIsSaving,
-  ] = useState(false);
-
-  const [
-    editError,
-    setEditError,
-  ] = useState("");
-
-  const [
-    hoverRating,
-    setHoverRating,
   ] =
-    useState<number | null>(
-      null,
-    );
+    useState(false);
 
   const [
     platform,
@@ -143,81 +159,21 @@ export function GameCard({
     );
 
   const [
-    notes,
-    setNotes,
+    wishlist,
+    setWishlist,
   ] =
     useState(
-      game.notes ?? "",
+      game.is_wishlist,
     );
 
   const [
-    isWishlist,
-    setIsWishlist,
+    error,
+    setError,
   ] =
-    useState(
-      game.is_wishlist,
-    );
+    useState("");
 
-  const genreText =
-    game.genres &&
-    game.genres.length >
-      0
-      ? game.genres.join(
-          " • ",
-        )
-      : "Unknown";
-
-  const displayedRating =
-    hoverRating ??
-    userRating ??
-    0;
-
-  function resetDraft() {
-    setPlatform(
-      game.platform,
-    );
-
-    setStatus(
-      game.status,
-    );
-
-    setUserRating(
-      game.user_rating,
-    );
-
-    setNotes(
-      game.notes ?? "",
-    );
-
-    setIsWishlist(
-      game.is_wishlist,
-    );
-
-    setHoverRating(
-      null,
-    );
-
-    setEditError("");
-  }
-
-  function handleStartEditing() {
-    resetDraft();
-
-    setIsEditing(
-      true,
-    );
-  }
-
-  function handleCancel() {
-    resetDraft();
-
-    setIsEditing(
-      false,
-    );
-  }
-
-  async function handleSave() {
-    setEditError("");
+  async function save() {
+    setError("");
 
     setIsSaving(
       true,
@@ -234,12 +190,8 @@ export function GameCard({
           user_rating:
             userRating,
 
-          notes:
-            notes.trim() ||
-            null,
-
           is_wishlist:
-            isWishlist,
+            wishlist,
         },
       );
 
@@ -250,9 +202,9 @@ export function GameCard({
     if (
       !result.success
     ) {
-      setEditError(
+      setError(
         result.error ??
-          "Your changes could not be saved.",
+          "Could not save changes.",
       );
 
       return;
@@ -263,71 +215,33 @@ export function GameCard({
     );
   }
 
-  async function handleQuickRating(
-    rating: number,
+  async function rate(
+    value: number,
   ) {
-    setEditError("");
+    await onUpdate(
+      game.id,
+      {
+        user_rating:
+          value,
+      },
+    );
+  }
 
-    const previousRating =
-      game.user_rating;
-
-    setUserRating(
-      rating,
+  const steamGame =
+    Boolean(
+      game.steam_app_id,
     );
 
-    const result =
-      await onUpdate(
-        game.id,
-        {
-          user_rating:
-            rating,
-        },
-      );
-
-    if (
-      !result.success
-    ) {
-      setUserRating(
-        previousRating,
-      );
-
-      setEditError(
-        result.error ??
-          "Your rating could not be saved.",
-      );
-    }
-  }
-
-  async function handleQuickWishlist() {
-    setEditError("");
-
-    const newValue =
-      !game.is_wishlist;
-
-    const result =
-      await onUpdate(
-        game.id,
-        {
-          is_wishlist:
-            newValue,
-        },
-      );
-
-    if (
-      !result.success
-    ) {
-      setEditError(
-        result.error ??
-          "Wishlist could not be updated.",
-      );
-    }
-  }
+  const lastPlayed =
+    formatDate(
+      game.steam_last_played_at,
+    );
 
   return (
-    <article className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg">
+    <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
       {/* COVER */}
 
-      <div className="relative aspect-[3/4] overflow-hidden bg-gradient-to-br from-indigo-600 to-violet-800">
+      <div className="relative aspect-[3/4] overflow-hidden bg-slate-900">
         {game.cover_url ? (
           <Image
             src={
@@ -335,157 +249,175 @@ export function GameCard({
             }
             alt={`${game.title} cover`}
             fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
-            className="object-cover transition duration-500 group-hover:scale-105"
+            sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1280px) 25vw, 20vw"
+            className="object-cover"
           />
         ) : (
-          <div className="flex h-full items-center justify-center p-5 text-center">
-            <span className="text-2xl font-black text-white">
-              {
-                game.title
-              }
-            </span>
+          <div className="flex h-full items-center justify-center p-4 text-center font-black text-white">
+            {
+              game.title
+            }
           </div>
         )}
 
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
         <span
-          className={`absolute bottom-3 left-3 rounded-full px-3 py-1 text-xs font-bold ${statusStyles[game.status]}`}
+          className={`absolute bottom-2 left-2 rounded-full px-2.5 py-1 text-[10px] font-bold ${statusStyles[game.status]}`}
         >
           {
             game.status
           }
         </span>
 
-        <button
-          type="button"
-          onClick={() =>
-            void handleQuickWishlist()
-          }
-          title={
-            game.is_wishlist
-              ? "Remove From Wishlist"
-              : "Add to Wishlist"
-          }
-          aria-label={
-            game.is_wishlist
-              ? `Remove ${game.title} from wishlist`
-              : `Add ${game.title} to wishlist`
-          }
-          className={`absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full border backdrop-blur transition ${
-            game.is_wishlist
-              ? "border-pink-300 bg-pink-500 text-white"
-              : "border-white/40 bg-black/40 text-white hover:bg-black/60"
-          }`}
-        >
-          <span className="text-xl">
-            ♥
+        {steamGame && (
+          <span className="absolute right-2 top-2 rounded-full bg-slate-950/90 px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-white">
+            Steam
           </span>
-        </button>
+        )}
       </div>
 
-      <div className="p-4">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-indigo-600">
-              {
-                game.platform
-              }
-            </p>
+      {/* BODY */}
 
-            <h2 className="mt-2 line-clamp-2 text-lg font-black leading-snug tracking-tight text-slate-950">
-              {
-                game.title
-              }
-            </h2>
-          </div>
+      <div className="flex flex-1 flex-col p-3.5">
+        {/* PLATFORM */}
 
-          {game.is_wishlist && (
-            <span className="shrink-0 rounded-full bg-pink-100 px-2 py-1 text-[10px] font-black uppercase tracking-wide text-pink-700">
-              Wishlist
-            </span>
-          )}
-        </div>
-
-        <div className="mt-3">
-          <p className="text-sm font-semibold text-slate-700">
-            {game.publisher ??
-              "Unknown Publisher"}
-          </p>
-
-          <p className="mt-1 text-xs text-slate-500">
-            Released{" "}
-            {formatReleaseDate(
-              game.release_date,
-            )}
-          </p>
-        </div>
-
-        <div className="mt-4 border-t border-slate-100 pt-3">
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">
-            Genre
-          </p>
-
-          <p className="mt-1 line-clamp-2 text-sm font-semibold text-slate-700">
+        <div className="h-4">
+          <p className="text-[10px] font-black uppercase tracking-[0.14em] text-indigo-600">
             {
-              genreText
+              game.platform
             }
           </p>
         </div>
 
-        <div className="mt-4 flex items-center justify-between rounded-xl bg-slate-50 px-3 py-2">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-400">
-              IGDB Rating
+        {/* TITLE */}
+
+        <div className="mt-1.5 h-11">
+          <h2 className="line-clamp-2 text-base font-black leading-snug text-slate-950">
+            {
+              game.title
+            }
+          </h2>
+        </div>
+
+        {/* PUBLISHER + RELEASE */}
+
+        <div className="mt-2 h-10">
+          <p className="truncate text-xs font-semibold text-slate-600">
+            {game.publisher ??
+              "Unknown Publisher"}
+          </p>
+
+          <p className="mt-0.5 text-[11px] text-slate-400">
+            {game.release_date
+              ? `Released ${formatDate(
+                  game.release_date,
+                )}`
+              : "Release Date Unknown"}
+          </p>
+        </div>
+
+        {/* GENRE */}
+
+        <div className="mt-2 h-8">
+          <p className="line-clamp-2 text-xs leading-4 text-slate-500">
+            {game.genres &&
+            game.genres.length >
+              0
+              ? game.genres.join(
+                  " • ",
+                )
+              : "Genre Unknown"}
+          </p>
+        </div>
+
+        {/* RATINGS */}
+
+        <div className="mt-3 grid h-[58px] grid-cols-2 gap-2">
+          <div className="rounded-lg bg-slate-50 p-2">
+            <p className="text-[9px] font-black uppercase text-slate-400">
+              IGDB
             </p>
 
-            <p className="mt-1 text-lg font-black text-slate-950">
+            <p className="mt-0.5 text-sm font-black">
               {game.rating !==
               null
                 ? `${Math.round(
                     game.rating,
                   )}/100`
-                : "N/A"}
+                : "—"}
             </p>
           </div>
 
-          {game.rating !==
-            null && (
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 text-sm font-black text-indigo-700">
-              {Math.round(
-                game.rating,
-              )}
-            </div>
-          )}
+          <div className="rounded-lg bg-amber-50 p-2">
+            <p className="text-[9px] font-black uppercase text-amber-600">
+              Your Rating
+            </p>
+
+            <p className="mt-0.5 text-sm font-black">
+              {game.user_rating !==
+              null
+                ? `${game.user_rating}/5`
+                : "—"}
+            </p>
+          </div>
         </div>
 
-        {!isEditing && (
-          <div className="mt-4 rounded-xl border border-slate-200 p-3">
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-400">
-                Your Rating
-              </p>
+        {/* STEAM ACTIVITY */}
 
-              {game.user_rating !==
-                null && (
-                <span className="text-xs font-bold text-slate-500">
-                  {
-                    game.user_rating
-                  }
-                  /5
-                </span>
-              )}
+        {steamGame ? (
+          <div className="mt-3 flex h-[120px] flex-col rounded-xl bg-slate-950 p-3 text-white">
+            <p className="text-[9px] font-black uppercase tracking-[0.14em] text-slate-400">
+              Steam Activity
+            </p>
+
+            <div className="mt-2 grid grid-cols-2 gap-3">
+              <div>
+                <p className="text-lg font-black">
+                  {hours(
+                    game.steam_playtime_minutes,
+                  )}
+                </p>
+
+                <p className="text-[10px] text-slate-400">
+                  Total
+                </p>
+              </div>
+
+              <div>
+                <p className="text-lg font-black">
+                  {hours(
+                    game.steam_playtime_2weeks,
+                  )}
+                </p>
+
+                <p className="text-[10px] text-slate-400">
+                  Last 2 Weeks
+                </p>
+              </div>
             </div>
 
-            <div
-              className="mt-2 flex items-center gap-1"
-              onMouseLeave={() =>
-                setHoverRating(
-                  null,
-                )
-              }
-            >
+            <div className="mt-auto border-t border-slate-800 pt-2">
+              <p className="text-[10px] text-slate-400">
+                Last Played{" "}
+                {lastPlayed ??
+                  "—"}
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="mt-3 h-[120px]" />
+        )}
+
+        {/* YOUR RATING */}
+
+        {!isEditing && (
+          <div className="mt-3 h-[50px]">
+            <p className="text-[9px] font-black uppercase tracking-[0.12em] text-slate-400">
+              Your Rating
+            </p>
+
+            <div className="mt-1 flex items-center gap-0.5">
               {[1, 2, 3, 4, 5].map(
                 (
                   star,
@@ -495,31 +427,21 @@ export function GameCard({
                       star
                     }
                     type="button"
-                    onMouseEnter={() =>
-                      setHoverRating(
-                        star,
-                      )
-                    }
                     onClick={() =>
-                      void handleQuickRating(
+                      void rate(
                         star,
                       )
                     }
                     aria-label={`Rate ${game.title} ${star} out of 5`}
-                    className="text-2xl leading-none transition hover:scale-110"
+                    className={`text-lg leading-none transition hover:scale-110 ${
+                      star <=
+                      (game.user_rating ??
+                        0)
+                        ? "text-amber-400"
+                        : "text-slate-300"
+                    }`}
                   >
-                    <span
-                      className={
-                        star <=
-                        (hoverRating ??
-                          game.user_rating ??
-                          0)
-                          ? "text-amber-400"
-                          : "text-slate-300"
-                      }
-                    >
-                      ★
-                    </span>
+                    ★
                   </button>
                 ),
               )}
@@ -527,24 +449,11 @@ export function GameCard({
           </div>
         )}
 
-        {!isEditing &&
-          game.notes && (
-            <div className="mt-4 rounded-xl bg-indigo-50 p-3">
-              <p className="text-xs font-bold uppercase tracking-[0.12em] text-indigo-500">
-                Your Notes
-              </p>
-
-              <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-slate-700">
-                {
-                  game.notes
-                }
-              </p>
-            </div>
-          )}
+        {/* EDIT MODE */}
 
         {isEditing && (
-          <div className="mt-4 space-y-4 rounded-2xl border border-indigo-200 bg-indigo-50/50 p-4">
-            <label className="grid gap-2 text-sm font-bold text-slate-800">
+          <div className="mt-3 space-y-3 border-t border-slate-100 pt-3">
+            <label className="grid gap-1 text-[10px] font-black uppercase tracking-wide text-slate-500">
               Platform
 
               <select
@@ -555,26 +464,27 @@ export function GameCard({
                   event,
                 ) =>
                   setPlatform(
-                    event.target
+                    event
+                      .target
                       .value,
                   )
                 }
-                className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-500"
+                className="h-10 w-full rounded-lg border border-slate-300 bg-white px-2 text-xs font-medium normal-case text-slate-800"
               >
                 {platforms.map(
                   (
-                    platformOption,
+                    item,
                   ) => (
                     <option
                       key={
-                        platformOption
+                        item
                       }
                       value={
-                        platformOption
+                        item
                       }
                     >
                       {
-                        platformOption
+                        item
                       }
                     </option>
                   ),
@@ -582,7 +492,7 @@ export function GameCard({
               </select>
             </label>
 
-            <label className="grid gap-2 text-sm font-bold text-slate-800">
+            <label className="grid gap-1 text-[10px] font-black uppercase tracking-wide text-slate-500">
               Status
 
               <select
@@ -593,11 +503,12 @@ export function GameCard({
                   event,
                 ) =>
                   setStatus(
-                    event.target
+                    event
+                      .target
                       .value as GameStatus,
                   )
                 }
-                className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-500"
+                className="h-10 w-full rounded-lg border border-slate-300 bg-white px-2 text-xs font-medium normal-case text-slate-800"
               >
                 <option value="Backlog">
                   Backlog
@@ -613,62 +524,12 @@ export function GameCard({
               </select>
             </label>
 
-            <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3">
-              <input
-                type="checkbox"
-                checked={
-                  isWishlist
-                }
-                onChange={(
-                  event,
-                ) =>
-                  setIsWishlist(
-                    event.target
-                      .checked,
-                  )
-                }
-                className="h-4 w-4 accent-pink-500"
-              />
-
-              <span className="text-sm font-bold text-slate-700">
-                Wishlist
-              </span>
-            </label>
-
             <div>
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-bold text-slate-800">
-                  Your Rating
-                </p>
+              <p className="text-[10px] font-black uppercase tracking-wide text-slate-500">
+                Your Rating
+              </p>
 
-                {userRating !==
-                  null && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setUserRating(
-                        null,
-                      );
-
-                      setHoverRating(
-                        null,
-                      );
-                    }}
-                    className="text-xs font-bold text-slate-500 hover:text-red-600"
-                  >
-                    Clear
-                  </button>
-                )}
-              </div>
-
-              <div
-                className="mt-2 flex gap-1"
-                onMouseLeave={() =>
-                  setHoverRating(
-                    null,
-                  )
-                }
-              >
+              <div className="mt-1 flex gap-1">
                 {[1, 2, 3, 4, 5].map(
                   (
                     star,
@@ -678,74 +539,51 @@ export function GameCard({
                         star
                       }
                       type="button"
-                      onMouseEnter={() =>
-                        setHoverRating(
-                          star,
-                        )
-                      }
                       onClick={() =>
                         setUserRating(
                           star,
                         )
                       }
-                      aria-label={`Set rating to ${star} out of 5`}
-                      className="text-2xl transition hover:scale-110"
+                      aria-label={`Set ${game.title} rating to ${star} out of 5`}
+                      className={`text-xl ${
+                        star <=
+                        (userRating ??
+                          0)
+                          ? "text-amber-400"
+                          : "text-slate-300"
+                      }`}
                     >
-                      <span
-                        className={
-                          star <=
-                          displayedRating
-                            ? "text-amber-400"
-                            : "text-slate-300"
-                        }
-                      >
-                        ★
-                      </span>
+                      ★
                     </button>
                   ),
                 )}
               </div>
             </div>
 
-            <label className="grid gap-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-bold text-slate-800">
-                  Notes
-                </span>
-
-                <span className="text-xs font-semibold text-slate-400">
-                  {
-                    notes.length
-                  }
-                  /1000
-                </span>
-              </div>
-
-              <textarea
-                value={
-                  notes
+            <label className="flex items-center gap-2 text-xs font-bold">
+              <input
+                type="checkbox"
+                checked={
+                  wishlist
                 }
                 onChange={(
                   event,
                 ) =>
-                  setNotes(
-                    event.target
-                      .value,
+                  setWishlist(
+                    event
+                      .target
+                      .checked,
                   )
                 }
-                maxLength={
-                  1000
-                }
-                rows={4}
-                placeholder="Add your thoughts, progress, reminders or review..."
-                className="resize-y rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm text-slate-950 outline-none placeholder:text-slate-400 focus:border-indigo-500"
               />
+
+              Wishlist
             </label>
 
-            {editError && (
-              <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700">
+            {error && (
+              <p className="text-xs font-semibold text-red-600">
                 {
-                  editError
+                  error
                 }
               </p>
             )}
@@ -757,24 +595,23 @@ export function GameCard({
                   isSaving
                 }
                 onClick={() =>
-                  void handleSave()
+                  void save()
                 }
-                className="flex-1 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-indigo-700 disabled:bg-indigo-300"
+                className="flex-1 rounded-lg bg-indigo-600 px-3 py-2 text-xs font-bold text-white disabled:bg-indigo-300"
               >
                 {isSaving
                   ? "Saving..."
-                  : "Save Changes"}
+                  : "Save"}
               </button>
 
               <button
                 type="button"
-                disabled={
-                  isSaving
+                onClick={() =>
+                  setIsEditing(
+                    false,
+                  )
                 }
-                onClick={
-                  handleCancel
-                }
-                className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50"
+                className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-bold"
               >
                 Cancel
               </button>
@@ -782,34 +619,37 @@ export function GameCard({
           </div>
         )}
 
-        {!isEditing &&
-          editError && (
-            <p className="mt-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700">
-              {
-                editError
-              }
-            </p>
-          )}
+        {/* ACTIONS */}
 
-        <div className="mt-4 flex items-center justify-between gap-3 border-t border-slate-100 pt-3">
+        <div className="mt-auto flex h-11 items-end justify-between border-t border-slate-100 pt-3">
           <button
             type="button"
             onClick={() => {
-              if (
-                isEditing
-              ) {
-                handleCancel();
+              setPlatform(
+                game.platform,
+              );
 
-                return;
-              }
+              setStatus(
+                game.status,
+              );
 
-              handleStartEditing();
+              setUserRating(
+                game.user_rating,
+              );
+
+              setWishlist(
+                game.is_wishlist,
+              );
+
+              setError("");
+
+              setIsEditing(
+                true,
+              );
             }}
-            className="text-sm font-bold text-indigo-600 transition hover:text-indigo-800"
+            className="text-xs font-bold text-indigo-600 transition hover:text-indigo-800"
           >
-            {isEditing
-              ? "Close Edit"
-              : "Edit Game"}
+            Edit
           </button>
 
           <button
@@ -819,7 +659,7 @@ export function GameCard({
                 game.id,
               )
             }
-            className="text-sm font-bold text-red-600 transition hover:text-red-800"
+            className="text-xs font-bold text-red-600 transition hover:text-red-800"
           >
             Remove
           </button>

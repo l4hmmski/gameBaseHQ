@@ -2,28 +2,25 @@ import type {
   Game,
 } from "@/types/game";
 
-type LibraryStatsProps = {
+type Props = {
   games: Game[];
 };
 
 export function LibraryStats({
   games,
-}: LibraryStatsProps) {
-  const totalGames =
-    games.length;
+}: Props) {
+  const completed =
+    games.filter(
+      (game) =>
+        game.status ===
+        "Completed",
+    ).length;
 
   const playing =
     games.filter(
       (game) =>
         game.status ===
         "Playing",
-    ).length;
-
-  const completed =
-    games.filter(
-      (game) =>
-        game.status ===
-        "Completed",
     ).length;
 
   const backlog =
@@ -39,21 +36,22 @@ export function LibraryStats({
         game.is_wishlist,
     ).length;
 
-  const ratedGames =
+  const rated =
     games.filter(
       (
         game,
       ): game is Game & {
-        user_rating: number;
+        user_rating:
+          number;
       } =>
         game.user_rating !==
         null,
     );
 
-  const averageRating =
-    ratedGames.length >
+  const average =
+    rated.length >
     0
-      ? ratedGames.reduce(
+      ? rated.reduce(
           (
             total,
             game,
@@ -62,8 +60,26 @@ export function LibraryStats({
             game.user_rating,
           0,
         ) /
-        ratedGames.length
+        rated.length
       : null;
+
+  const steamMinutes =
+    games.reduce(
+      (
+        total,
+        game,
+      ) =>
+        total +
+        (game.steam_playtime_minutes ??
+          0),
+      0,
+    );
+
+  const steamHours =
+    Math.round(
+      steamMinutes /
+        60,
+    );
 
   const stats = [
     {
@@ -71,7 +87,7 @@ export function LibraryStats({
         "Total Games",
 
       value:
-        totalGames,
+        games.length,
     },
 
     {
@@ -108,14 +124,27 @@ export function LibraryStats({
 
     {
       label:
-        "Average Rating",
+        "Avg Rating",
 
       value:
-        averageRating !==
+        average !==
         null
-          ? `${averageRating.toFixed(
+          ? `${average.toFixed(
               1,
             )}/5`
+          : "—",
+    },
+
+    {
+      label:
+        "Steam Hours",
+
+      value:
+        steamHours >
+        0
+          ? steamHours.toLocaleString(
+              "en-AU",
+            )
           : "—",
     },
   ];
@@ -132,7 +161,7 @@ export function LibraryStats({
         </h2>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
         {stats.map(
           (stat) => (
             <div
@@ -141,13 +170,13 @@ export function LibraryStats({
               }
               className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
             >
-              <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-400">
+              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">
                 {
                   stat.label
                 }
               </p>
 
-              <p className="mt-2 text-2xl font-black tracking-tight text-slate-950">
+              <p className="mt-2 text-2xl font-black text-slate-950">
                 {
                   stat.value
                 }

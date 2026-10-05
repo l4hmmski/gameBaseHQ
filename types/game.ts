@@ -29,4 +29,19 @@ export type Game = {
   notes: string | null;
 
   is_wishlist: boolean;
+
+  /*
+    Steam fields are optional so games
+    manually added from IGDB do not need them.
+  */
+
+  steam_app_id?: number | null;
+
+  steam_playtime_minutes?: number | null;
+
+  steam_playtime_2weeks?: number | null;
+
+  steam_last_played_at?: string | null;
+
+  steam_synced_at?: string | null;
 };

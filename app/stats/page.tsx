@@ -3,40 +3,34 @@ import {
 } from "@/components/auth-guard";
 
 import {
-  ProfileForm,
-} from "@/components/profile-form";
+  StatsDashboard,
+} from "@/components/stats-dashboard";
 
-import {
-  SteamSettings,
-} from "@/components/steam-settings";
-
-export default function ProfilePage() {
+export default function StatsPage() {
   return (
     <AuthGuard>
       <main className="min-h-screen bg-slate-50">
         <section className="border-b border-slate-200 bg-white">
-          <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8">
+          <div className="mx-auto max-w-7xl px-5 py-12 sm:px-8">
             <p className="text-sm font-bold uppercase tracking-[0.2em] text-indigo-600">
-              Account
+              Your Collection
             </p>
 
             <h1 className="mt-3 text-4xl font-black tracking-tight text-slate-950 sm:text-5xl">
-              Your Profile
+              Game Stats
             </h1>
 
             <p className="mt-4 max-w-2xl text-lg leading-8 text-slate-600">
-              Manage your account,
-              connected platforms,
-              profile information and
-              sharing preferences.
+              See how your collection
+              breaks down, what you play
+              the most and how your
+              library is progressing.
             </p>
           </div>
         </section>
 
-        <div className="mx-auto max-w-7xl space-y-8 px-5 py-10 sm:px-8">
-          <SteamSettings />
-
-          <ProfileForm />
+        <div className="mx-auto max-w-7xl px-5 py-10 sm:px-8">
+          <StatsDashboard />
         </div>
       </main>
     </AuthGuard>

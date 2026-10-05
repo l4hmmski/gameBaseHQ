@@ -139,6 +139,16 @@ export function Navbar() {
                 Library
               </Link>
 
+<Link
+  href="/wishlist"
+  className={
+    linkClasses(
+      "/wishlist",
+    )
+  }
+>
+  Wishlist
+</Link>
               <Link
                 href="/stats"
                 className={

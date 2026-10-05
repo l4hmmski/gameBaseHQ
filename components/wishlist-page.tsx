@@ -4,7 +4,7 @@ import Image from "next/image";
 
 import {
   useEffect,
-  useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -48,9 +48,37 @@ type Recommendation = {
 type RecommendationResponse = {
   recommendations:
     Recommendation[];
+
+  error?: string;
 };
 
+const GAME_SELECT = `
+  id,
+  igdb_id,
+  steam_app_id,
+  title,
+  platform,
+  status,
+  cover_url,
+  publisher,
+  release_date,
+  genres,
+  rating,
+  user_rating,
+  notes,
+  is_wishlist,
+  steam_playtime_minutes,
+  steam_playtime_2weeks,
+  steam_last_played_at,
+  steam_synced_at
+`;
+
 export function WishlistPage() {
+  const recommendationScroller =
+    useRef<HTMLDivElement>(
+      null,
+    );
+
   const [
     wishlistGames,
     setWishlistGames,
@@ -72,104 +100,129 @@ export function WishlistPage() {
     useState(true);
 
   const [
+    isRefreshing,
+    setIsRefreshing,
+  ] =
+    useState(false);
+
+  const [
     error,
     setError,
   ] =
     useState("");
+
+  const [
+    refreshNumber,
+    setRefreshNumber,
+  ] =
+    useState(0);
+
+  const [
+    addingGameId,
+    setAddingGameId,
+  ] =
+    useState<
+      number | null
+    >(null);
 
   useEffect(() => {
     let cancelled =
       false;
 
     async function loadPage() {
-      const [
-        wishlistResult,
-        recommendationResult,
-      ] =
-        await Promise.all([
-          supabase
-            .from(
-              "games",
-            )
-            .select(
-              `
-                id,
-                igdb_id,
-                steam_app_id,
-                title,
-                platform,
-                status,
-                cover_url,
-                publisher,
-                release_date,
-                genres,
-                rating,
-                user_rating,
-                notes,
-                is_wishlist,
-                steam_playtime_minutes,
-                steam_playtime_2weeks,
-                steam_last_played_at,
-                steam_synced_at
-              `,
-            )
-            .eq(
-              "is_wishlist",
-              true,
-            )
-            .order(
-              "created_at",
+      try {
+        const [
+          wishlistResult,
+          recommendationResponse,
+        ] =
+          await Promise.all([
+            supabase
+              .from(
+                "games",
+              )
+              .select(
+                GAME_SELECT,
+              )
+              .eq(
+                "is_wishlist",
+                true,
+              )
+              .order(
+                "created_at",
+                {
+                  ascending:
+                    false,
+                },
+              ),
+
+            fetch(
+              "/api/recommendations?refresh=0",
               {
-                ascending:
-                  false,
+                cache:
+                  "no-store",
               },
             ),
+          ]);
 
-          fetch(
-            "/api/recommendations",
-          ),
-        ]);
+        if (
+          cancelled
+        ) {
+          return;
+        }
 
-      if (
-        cancelled
-      ) {
-        return;
-      }
+        if (
+          wishlistResult.error
+        ) {
+          console.error(
+            wishlistResult.error,
+          );
 
-      if (
-        wishlistResult.error
+          setError(
+            "Your wishlist could not be loaded.",
+          );
+        } else {
+          setWishlistGames(
+            (
+              wishlistResult.data ??
+              []
+            ) as Game[],
+          );
+        }
+
+        if (
+          recommendationResponse.ok
+        ) {
+          const data =
+            (await recommendationResponse.json()) as RecommendationResponse;
+
+          setRecommendations(
+            data.recommendations ??
+              [],
+          );
+        }
+      } catch (
+        loadError
       ) {
         console.error(
-          wishlistResult.error,
+          loadError,
         );
 
-        setError(
-          "Your wishlist could not be loaded.",
-        );
-      } else {
-        setWishlistGames(
-          (
-            wishlistResult.data ??
-            []
-          ) as Game[],
-        );
+        if (
+          !cancelled
+        ) {
+          setError(
+            "Your wishlist could not be loaded.",
+          );
+        }
+      } finally {
+        if (
+          !cancelled
+        ) {
+          setIsLoading(
+            false,
+          );
+        }
       }
-
-      if (
-        recommendationResult.ok
-      ) {
-        const data =
-          (await recommendationResult.json()) as RecommendationResponse;
-
-        setRecommendations(
-          data.recommendations ??
-            [],
-        );
-      }
-
-      setIsLoading(
-        false,
-      );
     }
 
     void loadPage();
@@ -180,9 +233,109 @@ export function WishlistPage() {
     };
   }, []);
 
+  function scrollRecommendations(
+    direction:
+      "left" |
+      "right",
+  ) {
+    const container =
+      recommendationScroller.current;
+
+    if (!container) {
+      return;
+    }
+
+    const distance =
+      Math.max(
+        container.clientWidth *
+          0.8,
+        300,
+      );
+
+    container.scrollBy({
+      left:
+        direction ===
+        "right"
+          ? distance
+          : -distance,
+
+      behavior:
+        "smooth",
+    });
+  }
+
+  async function refreshRecommendations() {
+    setIsRefreshing(
+      true,
+    );
+
+    setError("");
+
+    try {
+      const nextRefresh =
+        refreshNumber +
+        1;
+
+      const response =
+        await fetch(
+          `/api/recommendations?refresh=${nextRefresh}`,
+          {
+            cache:
+              "no-store",
+          },
+        );
+
+      if (
+        !response.ok
+      ) {
+        setError(
+          "Recommendations could not be refreshed.",
+        );
+
+        return;
+      }
+
+      const data =
+        (await response.json()) as RecommendationResponse;
+
+      setRecommendations(
+        data.recommendations ??
+          [],
+      );
+
+      setRefreshNumber(
+        nextRefresh,
+      );
+
+      recommendationScroller
+        .current
+        ?.scrollTo({
+          left: 0,
+          behavior:
+            "smooth",
+        });
+    } catch (
+      refreshError
+    ) {
+      console.error(
+        refreshError,
+      );
+
+      setError(
+        "Recommendations could not be refreshed.",
+      );
+    } finally {
+      setIsRefreshing(
+        false,
+      );
+    }
+  }
+
   async function removeFromWishlist(
     gameId: string,
   ) {
+    setError("");
+
     const {
       error:
         updateError,
@@ -222,72 +375,111 @@ export function WishlistPage() {
     );
   }
 
+  async function deleteWishlistGame(
+    gameId: string,
+  ) {
+    setError("");
+
+    const {
+      error:
+        deleteError,
+    } =
+      await supabase
+        .from(
+          "games",
+        )
+        .delete()
+        .eq(
+          "id",
+          gameId,
+        );
+
+    if (
+      deleteError
+    ) {
+      console.error(
+        deleteError,
+      );
+
+      setError(
+        "The game could not be deleted.",
+      );
+
+      return;
+    }
+
+    setWishlistGames(
+      (
+        current,
+      ) =>
+        current.filter(
+          (game) =>
+            game.id !==
+            gameId,
+        ),
+    );
+  }
+
   async function addRecommendationToWishlist(
     recommendation:
       Recommendation,
   ) {
     setError("");
 
-    const {
-      data: {
-        user,
-      },
-    } =
-      await supabase.auth.getUser();
+    setAddingGameId(
+      recommendation.id,
+    );
 
-    if (!user) {
-      setError(
-        "You must be logged in.",
-      );
-
-      return;
-    }
-
-    const {
-      data:
-        existing,
-    } =
-      await supabase
-        .from(
-          "games",
-        )
-        .select(
-          "id, is_wishlist",
-        )
-        .eq(
-          "user_id",
-          user.id,
-        )
-        .eq(
-          "igdb_id",
-          recommendation.id,
-        )
-        .limit(
-          1,
-        )
-        .maybeSingle();
-
-    if (existing) {
+    try {
       const {
+        data: {
+          user,
+        },
+      } =
+        await supabase.auth.getUser();
+
+      if (!user) {
+        setError(
+          "You must be logged in.",
+        );
+
+        return;
+      }
+
+      const {
+        data:
+          existingGame,
+
         error:
-          updateError,
+          existingError,
       } =
         await supabase
           .from(
             "games",
           )
-          .update({
-            is_wishlist:
-              true,
-          })
+          .select(
+            GAME_SELECT,
+          )
           .eq(
-            "id",
-            existing.id,
-          );
+            "user_id",
+            user.id,
+          )
+          .eq(
+            "igdb_id",
+            recommendation.id,
+          )
+          .limit(
+            1,
+          )
+          .maybeSingle();
 
       if (
-        updateError
+        existingError
       ) {
+        console.error(
+          existingError,
+        );
+
         setError(
           "The game could not be added to your wishlist.",
         );
@@ -295,90 +487,216 @@ export function WishlistPage() {
         return;
       }
 
-      window.location.reload();
+      if (
+        existingGame
+      ) {
+        if (
+          existingGame.is_wishlist
+        ) {
+          setError(
+            `${recommendation.title} is already in your wishlist.`,
+          );
 
-      return;
-    }
+          setRecommendations(
+            (
+              current,
+            ) =>
+              current.filter(
+                (game) =>
+                  game.id !==
+                  recommendation.id,
+              ),
+          );
 
-    const {
-      error:
-        insertError,
-    } =
-      await supabase
-        .from(
-          "games",
-        )
-        .insert({
-          user_id:
-            user.id,
+          return;
+        }
 
-          igdb_id:
-            recommendation.id,
+        const {
+          data:
+            updatedGame,
 
-          title:
-            recommendation.title,
+          error:
+            updateError,
+        } =
+          await supabase
+            .from(
+              "games",
+            )
+            .update({
+              is_wishlist:
+                true,
+            })
+            .eq(
+              "id",
+              existingGame.id,
+            )
+            .select(
+              GAME_SELECT,
+            )
+            .single();
 
-          platform:
-            "PC",
+        if (
+          updateError
+        ) {
+          if (
+            updateError.code ===
+            "23505"
+          ) {
+            setError(
+              `${recommendation.title} is already in your wishlist.`,
+            );
 
-          status:
-            "Backlog",
+            return;
+          }
 
-          cover_url:
-            recommendation.coverUrl,
+          console.error(
+            updateError,
+          );
 
-          publisher:
-            recommendation.publisher,
+          setError(
+            "The game could not be added to your wishlist.",
+          );
 
-          release_date:
-            recommendation.releaseDate,
+          return;
+        }
 
-          genres:
-            recommendation.genres,
+        setWishlistGames(
+          (
+            current,
+          ) => [
+            updatedGame as Game,
+            ...current.filter(
+              (game) =>
+                game.id !==
+                updatedGame.id,
+            ),
+          ],
+        );
 
-          rating:
-            recommendation.rating,
+        setRecommendations(
+          (
+            current,
+          ) =>
+            current.filter(
+              (game) =>
+                game.id !==
+                recommendation.id,
+            ),
+        );
 
-          user_rating:
-            null,
+        return;
+      }
 
-          is_wishlist:
-            true,
+      const {
+        data:
+          insertedGame,
 
-          notes:
-            null,
-        });
+        error:
+          insertError,
+      } =
+        await supabase
+          .from(
+            "games",
+          )
+          .insert({
+            user_id:
+              user.id,
 
-    if (
-      insertError
-    ) {
-      console.error(
-        insertError,
+            igdb_id:
+              recommendation.id,
+
+            title:
+              recommendation.title,
+
+            platform:
+              "PC",
+
+            status:
+              "Backlog",
+
+            cover_url:
+              recommendation.coverUrl,
+
+            publisher:
+              recommendation.publisher,
+
+            release_date:
+              recommendation.releaseDate,
+
+            genres:
+              recommendation.genres,
+
+            rating:
+              recommendation.rating,
+
+            user_rating:
+              null,
+
+            is_wishlist:
+              true,
+
+            notes:
+              null,
+          })
+          .select(
+            GAME_SELECT,
+          )
+          .single();
+
+      if (
+        insertError
+      ) {
+        if (
+          insertError.code ===
+          "23505"
+        ) {
+          setError(
+            `${recommendation.title} is already in your wishlist.`,
+          );
+
+          return;
+        }
+
+        console.error(
+          insertError,
+        );
+
+        setError(
+          "The game could not be added to your wishlist.",
+        );
+
+        return;
+      }
+
+      setWishlistGames(
+        (
+          current,
+        ) => [
+          insertedGame as Game,
+          ...current,
+        ],
       );
 
-      setError(
-        "The game could not be added to your wishlist.",
+      setRecommendations(
+        (
+          current,
+        ) =>
+          current.filter(
+            (game) =>
+              game.id !==
+              recommendation.id,
+          ),
       );
-
-      return;
+    } finally {
+      setAddingGameId(
+        null,
+      );
     }
-
-    window.location.reload();
   }
 
-  const recommendationList =
-    useMemo(
-      () =>
-        recommendations.slice(
-          0,
-          6,
-        ),
-      [
-        recommendations,
-      ],
-    );
-
-  if (isLoading) {
+  if (
+    isLoading
+  ) {
     return (
       <div className="rounded-3xl border border-slate-200 bg-white p-12 text-center shadow-sm">
         <p className="font-semibold text-slate-600">
@@ -389,96 +707,37 @@ export function WishlistPage() {
   }
 
   return (
-    <div className="space-y-12">
-      {/* RECOMMENDATIONS */}
-
-      <section>
-        <div className="flex items-end justify-between gap-6">
-          <div>
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-indigo-600">
-              Recommended For You
-            </p>
-
-            <h2 className="mt-2 text-2xl font-black text-slate-950">
-              You Might Like These
-            </h2>
-
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-              Recommendations are based
-              on games already in your
-              library and your ratings.
-            </p>
-          </div>
-        </div>
-
-        {recommendationList.length >
-        0 ? (
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6">
-            {recommendationList.map(
-              (
-                game,
-              ) => (
-                <RecommendationCard
-                  key={
-                    game.id
-                  }
-                  game={
-                    game
-                  }
-                  onAdd={
-                    addRecommendationToWishlist
-                  }
-                />
-              ),
-            )}
-          </div>
-        ) : (
-          <div className="mt-6 rounded-3xl border border-dashed border-slate-300 bg-white p-8 text-center">
-            <p className="font-semibold text-slate-600">
-              Add and rate more games
-              to improve your
-              recommendations.
-            </p>
-          </div>
-        )}
-
-        <p className="mt-4 text-xs leading-5 text-slate-400">
-          Some purchase links may be
-          affiliate links. Game Library
-          may earn a commission from
-          qualifying purchases at no
-          additional cost to you.
-        </p>
-      </section>
-
-      {/* WISHLIST */}
-
-      <section>
-        <p className="text-xs font-black uppercase tracking-[0.18em] text-indigo-600">
-          Wishlist
-        </p>
-
-        <h2 className="mt-2 text-2xl font-black text-slate-950">
-          Games You Want
-        </h2>
-
-        <p className="mt-2 text-sm text-slate-500">
+    <div className="space-y-14">
+      {error && (
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700">
           {
-            wishlistGames.length
-          }{" "}
-          {wishlistGames.length ===
-          1
-            ? "game"
-            : "games"}
-        </p>
+            error
+          }
+        </div>
+      )}
 
-        {error && (
-          <div className="mt-5 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700">
+      {/* GAMES YOU WANT */}
+
+      <section>
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-indigo-600">
+            Your Wishlist
+          </p>
+
+          <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">
+            Games You Want
+          </h2>
+
+          <p className="mt-2 text-sm text-slate-500">
             {
-              error
-            }
-          </div>
-        )}
+              wishlistGames.length
+            }{" "}
+            {wishlistGames.length ===
+            1
+              ? "Game"
+              : "Games"}
+          </p>
+        </div>
 
         {wishlistGames.length >
         0 ? (
@@ -497,6 +756,9 @@ export function WishlistPage() {
                   onRemove={
                     removeFromWishlist
                   }
+                  onDelete={
+                    deleteWishlistGame
+                  }
                 />
               ),
             )}
@@ -508,12 +770,132 @@ export function WishlistPage() {
             </h3>
 
             <p className="mt-2 text-slate-500">
-              Add games from your
-              recommendations or your
-              library.
+              Add games you want to play
+              from your library or the
+              recommendations below.
             </p>
           </div>
         )}
+      </section>
+
+      {/* RECOMMENDATIONS */}
+
+      <section>
+        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-indigo-600">
+              Recommended For You
+            </p>
+
+            <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">
+              Discover Your Next Game
+            </h2>
+
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+              Based on the titles,
+              genres, publishers and
+              release dates of games in
+              your wishlist.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            disabled={
+              isRefreshing
+            }
+            onClick={() =>
+              void refreshRecommendations()
+            }
+            className="shrink-0 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-400"
+          >
+            {isRefreshing
+              ? "Refreshing..."
+              : "↻ Refresh Recommendations"}
+          </button>
+        </div>
+
+        {recommendations.length >
+        0 ? (
+          <div className="relative mt-6">
+            <button
+              type="button"
+              aria-label="Scroll Recommendations Left"
+              onClick={() =>
+                scrollRecommendations(
+                  "left",
+                )
+              }
+              className="absolute left-2 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-2xl font-bold text-slate-700 shadow-lg backdrop-blur transition hover:bg-white"
+            >
+              ‹
+            </button>
+
+            <div
+              ref={
+                recommendationScroller
+              }
+              className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-2 pb-3"
+            >
+              {recommendations.map(
+                (
+                  game,
+                ) => (
+                  <div
+                    key={
+                      game.id
+                    }
+                    className="w-[190px] shrink-0 snap-start sm:w-[205px] lg:w-[215px]"
+                  >
+                    <RecommendationCard
+                      game={
+                        game
+                      }
+                      isAdding={
+                        addingGameId ===
+                        game.id
+                      }
+                      onAdd={
+                        addRecommendationToWishlist
+                      }
+                    />
+                  </div>
+                ),
+              )}
+            </div>
+
+            <button
+              type="button"
+              aria-label="Scroll Recommendations Right"
+              onClick={() =>
+                scrollRecommendations(
+                  "right",
+                )
+              }
+              className="absolute right-2 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-2xl font-bold text-slate-700 shadow-lg backdrop-blur transition hover:bg-white"
+            >
+              ›
+            </button>
+          </div>
+        ) : (
+          <div className="mt-6 rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center">
+            <h3 className="font-black text-slate-950">
+              Add Wishlist Games First
+            </h3>
+
+            <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-500">
+              Your recommendations are
+              generated from the games
+              in your wishlist.
+            </p>
+          </div>
+        )}
+
+        <p className="mt-4 text-xs text-slate-400">
+          As an Amazon Associate,
+          Game Library may earn from
+          qualifying purchases.
+        </p>
       </section>
     </div>
   );
@@ -521,10 +903,14 @@ export function WishlistPage() {
 
 function RecommendationCard({
   game,
+  isAdding,
   onAdd,
 }: {
   game:
     Recommendation;
+
+  isAdding:
+    boolean;
 
   onAdd: (
     game:
@@ -539,7 +925,7 @@ function RecommendationCard({
     });
 
   return (
-    <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div className="relative aspect-[3/4] bg-slate-100">
         {game.coverUrl ? (
           <Image
@@ -548,7 +934,7 @@ function RecommendationCard({
             }
             alt={`${game.title} cover`}
             fill
-            sizes="200px"
+            sizes="215px"
             className="object-cover"
           />
         ) : (
@@ -560,31 +946,60 @@ function RecommendationCard({
         )}
       </div>
 
-      <div className="p-3">
-        <h3 className="line-clamp-2 h-10 text-sm font-black leading-5 text-slate-950">
-          {
-            game.title
-          }
-        </h3>
+      <div className="flex flex-1 flex-col p-4">
+        <div className="h-11">
+          <h3 className="line-clamp-2 font-black leading-snug text-slate-950">
+            {
+              game.title
+            }
+          </h3>
+        </div>
 
-        <p className="mt-2 text-xs text-slate-500">
-          {game.rating !==
-          null
-            ? `IGDB ${game.rating}/100`
-            : "No Rating"}
+        <p className="mt-2 truncate text-xs font-semibold text-slate-500">
+          {game.publisher ??
+            "Unknown Publisher"}
         </p>
 
-        <div className="mt-4 grid gap-2">
+        <div className="mt-3 h-8">
+          <p className="line-clamp-2 text-xs leading-4 text-slate-500">
+            {game.genres.length >
+            0
+              ? game.genres.join(
+                  " • ",
+                )
+              : "Genre Unknown"}
+          </p>
+        </div>
+
+        <div className="mt-3 flex items-center justify-between rounded-xl bg-slate-50 p-3">
+          <p className="text-[9px] font-black uppercase tracking-wide text-slate-400">
+            IGDB
+          </p>
+
+          <p className="text-sm font-black text-slate-950">
+            {game.rating !==
+            null
+              ? `${game.rating}/100`
+              : "—"}
+          </p>
+        </div>
+
+        <div className="mt-auto grid gap-2 pt-4">
           <button
             type="button"
+            disabled={
+              isAdding
+            }
             onClick={() =>
               void onAdd(
                 game,
               )
             }
-            className="rounded-lg bg-indigo-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-indigo-700"
+            className="rounded-lg bg-indigo-600 px-3 py-2.5 text-xs font-bold text-white transition hover:bg-indigo-700 disabled:bg-indigo-300"
           >
-            Add to Wishlist
+            {isAdding
+              ? "Adding..."
+              : "Add to Wishlist"}
           </button>
 
           <a
@@ -593,9 +1008,9 @@ function RecommendationCard({
             }
             target="_blank"
             rel="sponsored noreferrer"
-            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-center text-xs font-bold text-slate-700 transition hover:bg-slate-50"
+            className="rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-center text-xs font-bold text-slate-700 transition hover:bg-slate-50"
           >
-            Buy on Amazon
+            Check Price on Amazon
           </a>
         </div>
       </div>
@@ -606,13 +1021,18 @@ function RecommendationCard({
 function WishlistCard({
   game,
   onRemove,
+  onDelete,
 }: {
   game:
     Game;
 
   onRemove: (
-    id:
-      string,
+    id: string,
+  ) =>
+    Promise<void>;
+
+  onDelete: (
+    id: string,
   ) =>
     Promise<void>;
 }) {
@@ -625,8 +1045,13 @@ function WishlistCard({
         game.platform,
     });
 
+  const steamGame =
+    Boolean(
+      game.steam_app_id,
+    );
+
   return (
-    <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
       <div className="relative aspect-[3/4] bg-slate-100">
         {game.cover_url ? (
           <Image
@@ -645,27 +1070,53 @@ function WishlistCard({
             }
           </div>
         )}
+
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+
+        {steamGame && (
+          <span className="absolute left-2 top-2 rounded-full bg-slate-950/90 px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-white backdrop-blur">
+            Steam
+          </span>
+        )}
+
+        {/* ONLY DELETE CONTROL */}
+
+        <button
+          type="button"
+          onClick={() =>
+            void onDelete(
+              game.id,
+            )
+          }
+          aria-label={`Delete ${game.title}`}
+          title="Delete Game"
+          className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full border border-white/30 bg-black/60 text-lg font-bold leading-none text-white shadow-sm backdrop-blur transition hover:bg-red-600"
+        >
+          ×
+        </button>
       </div>
 
-      <div className="p-4">
+      <div className="flex flex-1 flex-col p-4">
         <p className="text-[10px] font-black uppercase tracking-[0.14em] text-indigo-600">
           {
             game.platform
           }
         </p>
 
-        <h3 className="mt-1 line-clamp-2 h-11 font-black leading-snug text-slate-950">
-          {
-            game.title
-          }
-        </h3>
+        <div className="mt-1 h-11">
+          <h3 className="line-clamp-2 font-black leading-snug text-slate-950">
+            {
+              game.title
+            }
+          </h3>
+        </div>
 
-        <p className="mt-2 text-xs text-slate-500">
+        <p className="mt-2 truncate text-xs text-slate-500">
           {game.publisher ??
             "Unknown Publisher"}
         </p>
 
-        <div className="mt-4 grid gap-2">
+        <div className="mt-auto grid gap-2 pt-4">
           <a
             href={
               amazonUrl
@@ -674,7 +1125,7 @@ function WishlistCard({
             rel="sponsored noreferrer"
             className="rounded-lg bg-slate-950 px-3 py-2.5 text-center text-xs font-bold text-white transition hover:bg-slate-800"
           >
-            Check Price
+            Check Price on Amazon
           </a>
 
           <button

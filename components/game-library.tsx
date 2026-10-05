@@ -425,17 +425,17 @@ export function GameLibrary() {
     };
   }
 
+  /*
+    Delete immediately.
+
+    No window.confirm() popup.
+  */
+
   async function deleteGame(
     gameId:
       string,
   ) {
-    if (
-      !window.confirm(
-        "Remove this game from your library?",
-      )
-    ) {
-      return;
-    }
+    setError("");
 
     const {
       error:
@@ -454,6 +454,10 @@ export function GameLibrary() {
     if (
       deleteError
     ) {
+      console.error(
+        deleteError,
+      );
+
       setError(
         "The game could not be removed.",
       );
@@ -490,15 +494,21 @@ export function GameLibrary() {
             const searchText =
               [
                 game.title,
+
                 game.platform,
+
                 game.publisher ??
                   "",
+
                 (
                   game.genres ??
                   []
                 ).join(
                   " ",
                 ),
+
+                game.notes ??
+                  "",
               ]
                 .join(
                   " ",

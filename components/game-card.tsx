@@ -262,6 +262,32 @@ export function GameCard({
 
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
+        {/* STEAM BADGE */}
+
+        {steamGame && (
+          <span className="absolute left-2 top-2 rounded-full bg-slate-950/90 px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-white backdrop-blur">
+            Steam
+          </span>
+        )}
+
+        {/* TOP DELETE BUTTON */}
+
+        <button
+          type="button"
+          onClick={() =>
+            onDelete(
+              game.id,
+            )
+          }
+          aria-label={`Delete ${game.title}`}
+          title="Delete Game"
+          className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full border border-white/30 bg-black/60 text-lg font-bold leading-none text-white shadow-sm backdrop-blur transition hover:bg-red-600"
+        >
+          ×
+        </button>
+
+        {/* STATUS */}
+
         <span
           className={`absolute bottom-2 left-2 rounded-full px-2.5 py-1 text-[10px] font-bold ${statusStyles[game.status]}`}
         >
@@ -269,12 +295,6 @@ export function GameCard({
             game.status
           }
         </span>
-
-        {steamGame && (
-          <span className="absolute right-2 top-2 rounded-full bg-slate-950/90 px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-white">
-            Steam
-          </span>
-        )}
       </div>
 
       {/* BODY */}
@@ -619,7 +639,7 @@ export function GameCard({
           </div>
         )}
 
-        {/* ACTIONS */}
+        {/* BOTTOM ACTIONS */}
 
         <div className="mt-auto flex h-11 items-end justify-between border-t border-slate-100 pt-3">
           <button
@@ -661,7 +681,7 @@ export function GameCard({
             }
             className="text-xs font-bold text-red-600 transition hover:text-red-800"
           >
-            Remove
+            Delete
           </button>
         </div>
       </div>

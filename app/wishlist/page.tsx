@@ -21,10 +21,10 @@ export default function WishlistRoute() {
             </h1>
 
             <p className="mt-4 max-w-2xl text-lg leading-8 text-slate-600">
-              Keep track of the games
-              you want and discover new
-              games based on your
-              collection.
+              Save games you want to
+              play and discover new
+              titles based on your
+              wishlist.
             </p>
           </div>
         </section>

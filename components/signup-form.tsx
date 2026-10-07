@@ -7,44 +7,76 @@ import {
 
 import Link from "next/link";
 
-import { supabase } from "@/lib/supabase";
+import {
+  track,
+} from "@vercel/analytics";
+
+import {
+  supabase,
+} from "@/lib/supabase";
 
 export function SignupForm() {
-  const [email, setEmail] =
+  const [
+    email,
+    setEmail,
+  ] =
     useState("");
 
-  const [password, setPassword] =
+  const [
+    password,
+    setPassword,
+  ] =
     useState("");
 
   const [
     confirmPassword,
     setConfirmPassword,
-  ] = useState("");
+  ] =
+    useState("");
 
   const [
     isSubmitting,
     setIsSubmitting,
-  ] = useState(false);
+  ] =
+    useState(false);
 
   const [
     isGoogleLoading,
     setIsGoogleLoading,
-  ] = useState(false);
+  ] =
+    useState(false);
 
   const [
     errorMessage,
     setErrorMessage,
-  ] = useState("");
+  ] =
+    useState("");
 
   const [
     successMessage,
     setSuccessMessage,
-  ] = useState("");
+  ] =
+    useState("");
 
   async function handleGoogleSignup() {
     setErrorMessage("");
     setSuccessMessage("");
-    setIsGoogleLoading(true);
+    setIsGoogleLoading(
+      true,
+    );
+
+    /*
+      We track that the Google signup
+      process was started here.
+
+      We do NOT track "Signup Completed"
+      here because the user still has to
+      successfully authenticate with Google.
+    */
+
+    track(
+      "Google Signup Started",
+    );
 
     const redirectTo =
       `${window.location.origin}/auth/callback`;
@@ -79,7 +111,8 @@ export function SignupForm() {
   }
 
   async function handleSubmit(
-    event: FormEvent<HTMLFormElement>,
+    event:
+      FormEvent<HTMLFormElement>,
   ) {
     event.preventDefault();
 
@@ -87,7 +120,9 @@ export function SignupForm() {
     setSuccessMessage("");
 
     const cleanEmail =
-      email.trim();
+      email
+        .trim()
+        .toLowerCase();
 
     if (
       password !==
@@ -101,7 +136,8 @@ export function SignupForm() {
     }
 
     if (
-      password.length < 8
+      password.length <
+      8
     ) {
       setErrorMessage(
         "Password must contain at least 8 characters.",
@@ -110,15 +146,19 @@ export function SignupForm() {
       return;
     }
 
-    setIsSubmitting(true);
+    setIsSubmitting(
+      true,
+    );
 
     const {
+      data,
       error,
     } =
       await supabase.auth
         .signUp({
           email:
             cleanEmail,
+
           password,
 
           options: {
@@ -127,7 +167,9 @@ export function SignupForm() {
           },
         });
 
-    setIsSubmitting(false);
+    setIsSubmitting(
+      false,
+    );
 
     if (error) {
       console.error(
@@ -141,6 +183,25 @@ export function SignupForm() {
 
       return;
     }
+
+    /*
+      Email signup successfully reached
+      Supabase.
+
+      Do not send email addresses or other
+      personal information to analytics.
+    */
+
+    track(
+      "Signup Completed",
+      {
+        method:
+          "email",
+
+        requiresConfirmation:
+          !data.session,
+      },
+    );
 
     setSuccessMessage(
       "Account created. Check your email to confirm your account, then log in.",
@@ -157,7 +218,9 @@ export function SignupForm() {
 
   return (
     <form
-      onSubmit={handleSubmit}
+      onSubmit={
+        handleSubmit
+      }
       className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 text-slate-950 shadow-sm"
     >
       <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-600">
@@ -176,7 +239,9 @@ export function SignupForm() {
 
       <button
         type="button"
-        disabled={authBusy}
+        disabled={
+          authBusy
+        }
         onClick={() =>
           void handleGoogleSignup()
         }
@@ -231,10 +296,16 @@ export function SignupForm() {
         <input
           required
           type="email"
-          value={email}
-          onChange={(event) =>
+          value={
+            email
+          }
+          onChange={(
+            event,
+          ) =>
             setEmail(
-              event.target.value,
+              event
+                .target
+                .value,
             )
           }
           autoComplete="email"
@@ -250,13 +321,21 @@ export function SignupForm() {
         <input
           required
           type="password"
-          value={password}
-          onChange={(event) =>
+          value={
+            password
+          }
+          onChange={(
+            event,
+          ) =>
             setPassword(
-              event.target.value,
+              event
+                .target
+                .value,
             )
           }
-          minLength={8}
+          minLength={
+            8
+          }
           autoComplete="new-password"
           className="h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-slate-950 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
         />
@@ -273,12 +352,18 @@ export function SignupForm() {
           value={
             confirmPassword
           }
-          onChange={(event) =>
+          onChange={(
+            event,
+          ) =>
             setConfirmPassword(
-              event.target.value,
+              event
+                .target
+                .value,
             )
           }
-          minLength={8}
+          minLength={
+            8
+          }
           autoComplete="new-password"
           className="h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-slate-950 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
         />
@@ -286,19 +371,25 @@ export function SignupForm() {
 
       {errorMessage && (
         <div className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
-          {errorMessage}
+          {
+            errorMessage
+          }
         </div>
       )}
 
       {successMessage && (
         <div className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
-          {successMessage}
+          {
+            successMessage
+          }
         </div>
       )}
 
       <button
         type="submit"
-        disabled={authBusy}
+        disabled={
+          authBusy
+        }
         className="mt-6 h-12 w-full rounded-xl bg-indigo-600 px-5 font-bold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-indigo-300"
       >
         {isSubmitting

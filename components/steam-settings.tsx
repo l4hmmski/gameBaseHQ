@@ -8,6 +8,10 @@ import {
 import Link from "next/link";
 
 import {
+  track,
+} from "@vercel/analytics";
+
+import {
   supabase,
 } from "@/lib/supabase";
 
@@ -207,6 +211,7 @@ export function SteamSettings() {
   async function syncSteam() {
     setError("");
     setMessage("");
+
     setIsSyncing(
       true,
     );
@@ -248,6 +253,23 @@ export function SteamSettings() {
 
       setMessage(
         `Steam synced. ${data.total ?? 0} games found, ${data.imported ?? 0} imported and ${data.updated ?? 0} updated.`,
+      );
+
+      track(
+        "Steam Sync Completed",
+        {
+          totalGames:
+            data.total ??
+            0,
+
+          imported:
+            data.imported ??
+            0,
+
+          updated:
+            data.updated ??
+            0,
+        },
       );
 
       await refreshSteamProfile();
@@ -324,6 +346,10 @@ export function SteamSettings() {
           null,
       });
 
+      track(
+        "Steam Disconnected",
+      );
+
       setMessage(
         "Steam account disconnected.",
       );
@@ -339,6 +365,12 @@ export function SteamSettings() {
         "Steam could not be disconnected.",
       );
     }
+  }
+
+  function handleSteamConnectionStarted() {
+    track(
+      "Steam Connection Started",
+    );
   }
 
   if (isLoading) {
@@ -421,6 +453,9 @@ export function SteamSettings() {
           {!connected ? (
             <Link
               href="/api/steam/connect"
+              onClick={
+                handleSteamConnectionStarted
+              }
               className="rounded-xl bg-slate-950 px-5 py-3 text-sm font-bold text-white transition hover:bg-slate-800"
             >
               Connect Steam

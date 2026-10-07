@@ -7,6 +7,10 @@ import {
 } from "next/headers";
 
 import {
+  track,
+} from "@vercel/analytics/server";
+
+import {
   createSupabaseServerClient,
 } from "@/lib/supabase-server";
 
@@ -38,6 +42,14 @@ export async function GET(
       "steam_connect_state",
     )?.value;
 
+  /*
+    Validate the state value.
+
+    This protects the Steam connection
+    flow against forged callback
+    requests.
+  */
+
   if (
     !state ||
     !expectedState ||
@@ -64,6 +76,15 @@ export async function GET(
       `${origin}/login`,
     );
   }
+
+  /*
+    Steam uses OpenID.
+
+    Copy all of the OpenID callback
+    parameters into a new request so
+    Steam can verify that the response
+    is genuine.
+  */
 
   const verificationParams =
     new URLSearchParams();
@@ -124,6 +145,15 @@ export async function GET(
     );
   }
 
+  /*
+    Steam puts the Steam ID at the end
+    of the claimed_id URL.
+
+    Example:
+
+    https://steamcommunity.com/openid/id/7656119...
+  */
+
   const claimedId =
     url.searchParams.get(
       "openid.claimed_id",
@@ -144,6 +174,12 @@ export async function GET(
   }
 
   try {
+    /*
+      Retrieve basic Steam profile
+      information before saving the
+      connection to Supabase.
+    */
+
     const player =
       await getSteamPlayer(
         steamId,
@@ -186,10 +222,54 @@ export async function GET(
       );
     }
 
+    /*
+      The Steam account has now been
+      successfully verified AND saved.
+
+      This is the correct point to record
+      a successful Steam connection.
+
+      Do not send:
+      - Steam ID
+      - Supabase user ID
+      - Steam username
+
+      Analytics only needs to know that
+      the connection occurred.
+    */
+
+    try {
+      await track(
+        "Steam Connected",
+        {
+          provider:
+            "steam",
+        },
+      );
+    } catch (
+      analyticsError
+    ) {
+      /*
+        Analytics should never cause a
+        successful Steam connection to
+        fail.
+      */
+
+      console.error(
+        "Steam connection analytics failed:",
+        analyticsError,
+      );
+    }
+
     const response =
       NextResponse.redirect(
         `${origin}/profile?steam=connected`,
       );
+
+    /*
+      Remove the temporary state cookie
+      after successful authentication.
+    */
 
     response.cookies.delete(
       "steam_connect_state",

@@ -2,7 +2,9 @@ import {
   createServerClient,
 } from "@supabase/ssr";
 
-import { cookies } from "next/headers";
+import {
+  cookies,
+} from "next/headers";
 
 export async function createSupabaseServerClient() {
   const cookieStore =
@@ -12,29 +14,34 @@ export async function createSupabaseServerClient() {
     process.env
       .NEXT_PUBLIC_SUPABASE_URL;
 
-  const supabasePublishableKey =
+  const supabaseAnonKey =
     process.env
-      .NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+      .NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  if (
-    !supabaseUrl ||
-    !supabasePublishableKey
-  ) {
+  if (!supabaseUrl) {
     throw new Error(
-      "Supabase environment variables are missing.",
+      "Missing NEXT_PUBLIC_SUPABASE_URL.",
+    );
+  }
+
+  if (!supabaseAnonKey) {
+    throw new Error(
+      "Missing NEXT_PUBLIC_SUPABASE_ANON_KEY.",
     );
   }
 
   return createServerClient(
     supabaseUrl,
-    supabasePublishableKey,
+    supabaseAnonKey,
     {
       cookies: {
         getAll() {
           return cookieStore.getAll();
         },
 
-        setAll(cookiesToSet) {
+        setAll(
+          cookiesToSet,
+        ) {
           try {
             cookiesToSet.forEach(
               ({
@@ -51,11 +58,15 @@ export async function createSupabaseServerClient() {
             );
           } catch {
             /*
-              Server Components cannot
-              always modify cookies.
+              Setting cookies can fail
+              inside a Server Component
+              because Server Components
+              cannot directly modify
+              cookies.
 
-              proxy.ts handles refreshing
-              sessions for us.
+              Route Handlers can modify
+              them, which is what our
+              auth callback uses.
             */
           }
         },

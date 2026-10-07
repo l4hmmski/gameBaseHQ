@@ -6,21 +6,24 @@ const supabaseUrl =
   process.env
     .NEXT_PUBLIC_SUPABASE_URL;
 
-const supabasePublishableKey =
+const supabaseAnonKey =
   process.env
-    .NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+    .NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-if (
-  !supabaseUrl ||
-  !supabasePublishableKey
-) {
+if (!supabaseUrl) {
   throw new Error(
-    "Supabase environment variables are missing.",
+    "Missing NEXT_PUBLIC_SUPABASE_URL.",
+  );
+}
+
+if (!supabaseAnonKey) {
+  throw new Error(
+    "Missing NEXT_PUBLIC_SUPABASE_ANON_KEY.",
   );
 }
 
 export const supabase =
   createBrowserClient(
     supabaseUrl,
-    supabasePublishableKey,
+    supabaseAnonKey,
   );

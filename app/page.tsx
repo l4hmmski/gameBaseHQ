@@ -3,24 +3,16 @@ import Link from "next/link";
 
 const featuredGames = [
   {
-    title:
-      "Cyberpunk 2077",
-    image:
-      "/home-games/cyberpunk.jpg",
+    title: "Cyberpunk 2077",
+    image: "/home-games/cyberpunk.jpg",
   },
-
   {
-    title:
-      "Elden Ring",
-    image:
-      "/home-games/elden-ring.jpg",
+    title: "Elden Ring",
+    image: "/home-games/elden-ring.jpg",
   },
-
   {
-    title:
-      "Red Dead Redemption",
-    image:
-      "/home-games/red-dead-redemption.jpg",
+    title: "Red Dead Redemption",
+    image: "/home-games/red-dead-redemption.jpg",
   },
 ];
 
@@ -96,7 +88,7 @@ export default function HomePage() {
                       key={
                         game.title
                       }
-                      className="group relative aspect-[3/4] min-w-0 overflow-hidden rounded-2xl bg-slate-800"
+                      className="relative aspect-[3/4] min-w-0 overflow-hidden rounded-2xl bg-slate-800"
                     >
                       <Image
                         src={
@@ -107,7 +99,7 @@ export default function HomePage() {
                         }
                         fill
                         sizes="(max-width: 768px) 30vw, 180px"
-                        className="object-cover transition duration-500 group-hover:scale-105"
+                        className="object-cover"
                       />
 
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />

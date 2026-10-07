@@ -29,6 +29,8 @@ type UpdateResult = {
 type Props = {
   game: Game;
 
+  eager?: boolean;
+
   onDelete: (
     id: string,
   ) => void;
@@ -117,6 +119,7 @@ function formatDate(
 
 export function GameCard({
   game,
+  eager = false,
   onDelete,
   onUpdate,
 }: Props) {
@@ -129,6 +132,12 @@ export function GameCard({
   const [
     isSaving,
     setIsSaving,
+  ] =
+    useState(false);
+
+  const [
+    isSteamOpen,
+    setIsSteamOpen,
   ] =
     useState(false);
 
@@ -238,7 +247,7 @@ export function GameCard({
     );
 
   return (
-    <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+    <article className="flex w-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
       {/* COVER */}
 
       <div className="relative aspect-[3/4] overflow-hidden bg-slate-900">
@@ -249,6 +258,11 @@ export function GameCard({
             }
             alt={`${game.title} cover`}
             fill
+            loading={
+              eager
+                ? "eager"
+                : "lazy"
+            }
             sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1280px) 25vw, 20vw"
             className="object-cover"
           />
@@ -270,7 +284,7 @@ export function GameCard({
           </span>
         )}
 
-        {/* TOP DELETE BUTTON */}
+        {/* DELETE */}
 
         <button
           type="button"
@@ -295,11 +309,19 @@ export function GameCard({
             game.status
           }
         </span>
+
+        {/* WISHLIST BADGE ONLY */}
+
+        {game.is_wishlist && (
+          <span className="absolute bottom-2 right-2 rounded-full bg-violet-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-violet-800">
+            Wishlist
+          </span>
+        )}
       </div>
 
       {/* BODY */}
 
-      <div className="flex flex-1 flex-col p-3.5">
+      <div className="flex flex-col p-3.5">
         {/* PLATFORM */}
 
         <div className="h-4">
@@ -386,53 +408,95 @@ export function GameCard({
         {/* STEAM ACTIVITY */}
 
         {steamGame ? (
-          <div className="mt-3 flex h-[120px] flex-col rounded-xl bg-slate-950 p-3 text-white">
-            <p className="text-[9px] font-black uppercase tracking-[0.14em] text-slate-400">
-              Steam Activity
-            </p>
-
-            <div className="mt-2 grid grid-cols-2 gap-3">
+          <div className="mt-3 overflow-hidden rounded-xl border border-slate-200">
+            <button
+              type="button"
+              onClick={() =>
+                setIsSteamOpen(
+                  (
+                    current,
+                  ) =>
+                    !current,
+                )
+              }
+              aria-expanded={
+                isSteamOpen
+              }
+              className="flex min-h-[52px] w-full items-center justify-between bg-slate-950 px-3 py-2.5 text-left text-white transition hover:bg-slate-900"
+            >
               <div>
-                <p className="text-lg font-black">
+                <p className="text-[9px] font-black uppercase tracking-[0.14em] text-slate-400">
+                  Steam Activity
+                </p>
+
+                <p className="mt-0.5 text-xs font-semibold text-white">
                   {hours(
                     game.steam_playtime_minutes,
-                  )}
-                </p>
-
-                <p className="text-[10px] text-slate-400">
-                  Total
+                  )}{" "}
+                  Total Playtime
                 </p>
               </div>
 
-              <div>
-                <p className="text-lg font-black">
-                  {hours(
-                    game.steam_playtime_2weeks,
-                  )}
-                </p>
+              <span
+                className={`text-lg font-bold transition-transform ${
+                  isSteamOpen
+                    ? "rotate-180"
+                    : ""
+                }`}
+              >
+                ⌄
+              </span>
+            </button>
 
-                <p className="text-[10px] text-slate-400">
-                  Last 2 Weeks
-                </p>
+            {isSteamOpen && (
+              <div className="bg-slate-950 px-3 pb-3 text-white">
+                <div className="grid grid-cols-2 gap-3 border-t border-slate-800 pt-3">
+                  <div>
+                    <p className="text-lg font-black">
+                      {hours(
+                        game.steam_playtime_minutes,
+                      )}
+                    </p>
+
+                    <p className="text-[10px] text-slate-400">
+                      Total
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-lg font-black">
+                      {hours(
+                        game.steam_playtime_2weeks,
+                      )}
+                    </p>
+
+                    <p className="text-[10px] text-slate-400">
+                      Last 2 Weeks
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-3 border-t border-slate-800 pt-2">
+                  <p className="text-[10px] text-slate-400">
+                    Last Played{" "}
+                    {lastPlayed ??
+                      "—"}
+                  </p>
+                </div>
               </div>
-            </div>
-
-            <div className="mt-auto border-t border-slate-800 pt-2">
-              <p className="text-[10px] text-slate-400">
-                Last Played{" "}
-                {lastPlayed ??
-                  "—"}
-              </p>
-            </div>
+            )}
           </div>
         ) : (
-          <div className="mt-3 h-[120px]" />
+          <div
+            aria-hidden="true"
+            className="mt-3 h-[54px]"
+          />
         )}
 
         {/* YOUR RATING */}
 
         {!isEditing && (
-          <div className="mt-3 h-[50px]">
+          <div className="mt-3">
             <p className="text-[9px] font-black uppercase tracking-[0.12em] text-slate-400">
               Your Rating
             </p>
@@ -639,9 +703,9 @@ export function GameCard({
           </div>
         )}
 
-        {/* BOTTOM ACTIONS */}
+        {/* ACTIONS */}
 
-        <div className="mt-auto flex h-11 items-end justify-between border-t border-slate-100 pt-3">
+        <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
           <button
             type="button"
             onClick={() => {

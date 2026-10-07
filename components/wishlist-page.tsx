@@ -9,6 +9,10 @@ import {
 } from "react";
 
 import {
+  track,
+} from "@vercel/analytics";
+
+import {
   getAmazonAffiliateUrl,
 } from "@/lib/affiliate-links";
 
@@ -307,10 +311,24 @@ export function WishlistPage() {
         nextRefresh,
       );
 
+      track(
+        "Recommendations Refreshed",
+        {
+          refreshNumber:
+            nextRefresh,
+
+          recommendationCount:
+            data.recommendations
+              ?.length ??
+            0,
+        },
+      );
+
       recommendationScroller
         .current
         ?.scrollTo({
           left: 0,
+
           behavior:
             "smooth",
         });
@@ -565,6 +583,7 @@ export function WishlistPage() {
             current,
           ) => [
             updatedGame as Game,
+
             ...current.filter(
               (game) =>
                 game.id !==
@@ -582,6 +601,17 @@ export function WishlistPage() {
                 game.id !==
                 recommendation.id,
             ),
+        );
+
+        track(
+          "Wishlist Added",
+          {
+            source:
+              "recommendation",
+
+            existingLibraryGame:
+              true,
+          },
         );
 
         return;
@@ -686,6 +716,17 @@ export function WishlistPage() {
               game.id !==
               recommendation.id,
           ),
+      );
+
+      track(
+        "Wishlist Added",
+        {
+          source:
+            "recommendation",
+
+          existingLibraryGame:
+            false,
+        },
       );
     } finally {
       setAddingGameId(
@@ -924,6 +965,16 @@ function RecommendationCard({
         game.title,
     });
 
+  function trackAmazonClick() {
+    track(
+      "Amazon Click",
+      {
+        source:
+          "recommendation",
+      },
+    );
+  }
+
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div className="relative aspect-[3/4] bg-slate-100">
@@ -985,6 +1036,20 @@ function RecommendationCard({
         </div>
 
         <div className="mt-auto grid gap-2 pt-4">
+          <a
+            href={
+              amazonUrl
+            }
+            target="_blank"
+            rel="sponsored noreferrer"
+            onClick={
+              trackAmazonClick
+            }
+            className="rounded-lg bg-indigo-600 px-3 py-2.5 text-center text-xs font-bold text-white transition hover:bg-indigo-700"
+          >
+            Check Price on Amazon
+          </a>
+
           <button
             type="button"
             disabled={
@@ -995,23 +1060,12 @@ function RecommendationCard({
                 game,
               )
             }
-            className="rounded-lg bg-indigo-600 px-3 py-2.5 text-xs font-bold text-white transition hover:bg-indigo-700 disabled:bg-indigo-300"
+            className="rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-xs font-bold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-400"
           >
             {isAdding
               ? "Adding..."
               : "Add to Wishlist"}
           </button>
-
-          <a
-            href={
-              amazonUrl
-            }
-            target="_blank"
-            rel="sponsored noreferrer"
-            className="rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-center text-xs font-bold text-slate-700 transition hover:bg-slate-50"
-          >
-            Check Price on Amazon
-          </a>
         </div>
       </div>
     </article>
@@ -1050,6 +1104,16 @@ function WishlistCard({
       game.steam_app_id,
     );
 
+  function trackAmazonClick() {
+    track(
+      "Amazon Click",
+      {
+        source:
+          "wishlist",
+      },
+    );
+  }
+
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
       <div className="relative aspect-[3/4] bg-slate-100">
@@ -1078,8 +1142,6 @@ function WishlistCard({
             Steam
           </span>
         )}
-
-        {/* ONLY DELETE CONTROL */}
 
         <button
           type="button"
@@ -1123,7 +1185,10 @@ function WishlistCard({
             }
             target="_blank"
             rel="sponsored noreferrer"
-            className="rounded-lg bg-slate-950 px-3 py-2.5 text-center text-xs font-bold text-white transition hover:bg-slate-800"
+            onClick={
+              trackAmazonClick
+            }
+            className="rounded-lg bg-indigo-600 px-3 py-2.5 text-center text-xs font-bold text-white transition hover:bg-indigo-700"
           >
             Check Price on Amazon
           </a>
@@ -1135,7 +1200,7 @@ function WishlistCard({
                 game.id,
               )
             }
-            className="rounded-lg border border-slate-300 px-3 py-2.5 text-xs font-bold text-slate-600 transition hover:bg-slate-50"
+            className="rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-xs font-bold text-slate-700 transition hover:bg-slate-50"
           >
             Remove From Wishlist
           </button>

@@ -1,10 +1,10 @@
 
-import { SpeedInsights } from "@vercel/speed-insights/next";
-
 import type { Metadata } from "next";
 
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
+import { GameBaseGoogleAnalytics } from "@/components/google-analytics";
 import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
 
@@ -86,8 +86,9 @@ export default function RootLayout({
         </div>
 
         <Analytics />
-<SpeedInsights />      
-</body>
+        <SpeedInsights />
+        <GameBaseGoogleAnalytics />
+      </body>
     </html>
   );
 }

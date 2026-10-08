@@ -1,84 +1,35 @@
+
 "use client";
 
 import Link from "next/link";
-
-import {
-  useEffect,
-  useState,
-} from "react";
-
-import {
-  usePathname,
-  useRouter,
-} from "next/navigation";
-
-import {
-  supabase,
-} from "@/lib/supabase";
+import { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 export function Navbar() {
-  const pathname =
-    usePathname();
+  const pathname = usePathname();
+  const router = useRouter();
 
-  const router =
-    useRouter();
-
-  const [
-    isLoggedIn,
-    setIsLoggedIn,
-  ] =
-    useState(false);
-
-  const [
-    isLoading,
-    setIsLoading,
-  ] =
-    useState(true);
-
-  const [
-    isMobileMenuOpen,
-    setIsMobileMenuOpen,
-  ] =
-    useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     async function loadSession() {
       const {
-        data: {
-          session,
-        },
-      } =
-        await supabase.auth.getSession();
+        data: { session },
+      } = await supabase.auth.getSession();
 
-      setIsLoggedIn(
-        Boolean(
-          session,
-        ),
-      );
-
-      setIsLoading(
-        false,
-      );
+      setIsLoggedIn(Boolean(session));
+      setIsLoading(false);
     }
 
     void loadSession();
 
-    const {
-      data:
-        subscription,
-    } =
-      supabase.auth.onAuthStateChange(
-        (
-          _event,
-          session,
-        ) => {
-          setIsLoggedIn(
-            Boolean(
-              session,
-            ),
-          );
-        },
-      );
+    const { data: subscription } =
+      supabase.auth.onAuthStateChange((_event, session) => {
+        setIsLoggedIn(Boolean(session));
+      });
 
     return () => {
       subscription.subscription.unsubscribe();
@@ -88,24 +39,15 @@ export function Navbar() {
   async function handleLogout() {
     await supabase.auth.signOut();
 
-    setIsLoggedIn(
-      false,
-    );
-
-    setIsMobileMenuOpen(
-      false,
-    );
+    setIsLoggedIn(false);
+    setIsMobileMenuOpen(false);
 
     router.push("/");
     router.refresh();
   }
 
-  function linkClasses(
-    href: string,
-  ) {
-    const active =
-      pathname ===
-      href;
+  function linkClasses(href: string) {
+    const active = pathname === href;
 
     return `rounded-lg px-3 py-2 text-sm font-bold transition ${
       active
@@ -114,12 +56,8 @@ export function Navbar() {
     }`;
   }
 
-  function mobileLinkClasses(
-    href: string,
-  ) {
-    const active =
-      pathname ===
-      href;
+  function mobileLinkClasses(href: string) {
+    const active = pathname === href;
 
     return `block rounded-xl px-4 py-3 text-sm font-bold transition ${
       active
@@ -130,26 +68,27 @@ export function Navbar() {
 
   return (
     <header className="border-b border-slate-200 bg-white">
-      <nav className="mx-auto max-w-7xl px-5 py-4 sm:px-8">
+      <nav className="mx-auto max-w-7xl px-5 py-3 sm:px-8">
         <div className="flex items-center justify-between gap-4">
+          {/* TEXT-ONLY BRAND */}
+
           <Link
             href="/"
-            className="shrink-0 text-xl font-black tracking-tight text-slate-950"
+            aria-label="GameBaseHQ Home"
+            className="shrink-0 whitespace-nowrap text-xl font-black tracking-tight sm:text-2xl"
           >
-            Game Library
+            <span className="text-slate-950">
+              GameBase
+            </span>
+            <span className="text-indigo-600">
+              HQ
+            </span>
           </Link>
 
-          {/* DESKTOP NAV */}
+          {/* DESKTOP NAVIGATION */}
 
           <div className="hidden items-center gap-1 md:flex">
-            <Link
-              href="/"
-              className={
-                linkClasses(
-                  "/",
-                )
-              }
-            >
+            <Link href="/" className={linkClasses("/")}>
               Home
             </Link>
 
@@ -157,44 +96,28 @@ export function Navbar() {
               <>
                 <Link
                   href="/library"
-                  className={
-                    linkClasses(
-                      "/library",
-                    )
-                  }
+                  className={linkClasses("/library")}
                 >
                   Library
                 </Link>
 
                 <Link
                   href="/wishlist"
-                  className={
-                    linkClasses(
-                      "/wishlist",
-                    )
-                  }
+                  className={linkClasses("/wishlist")}
                 >
                   Wishlist
                 </Link>
 
                 <Link
                   href="/stats"
-                  className={
-                    linkClasses(
-                      "/stats",
-                    )
-                  }
+                  className={linkClasses("/stats")}
                 >
                   Stats
                 </Link>
 
                 <Link
                   href="/profile"
-                  className={
-                    linkClasses(
-                      "/profile",
-                    )
-                  }
+                  className={linkClasses("/profile")}
                 >
                   Account
                 </Link>
@@ -205,9 +128,7 @@ export function Navbar() {
               (isLoggedIn ? (
                 <button
                   type="button"
-                  onClick={() =>
-                    void handleLogout()
-                  }
+                  onClick={() => void handleLogout()}
                   className="ml-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
                 >
                   Log Out
@@ -227,17 +148,11 @@ export function Navbar() {
           <button
             type="button"
             onClick={() =>
-              setIsMobileMenuOpen(
-                (
-                  current,
-                ) =>
-                  !current,
-              )
+              setIsMobileMenuOpen((current) => !current)
             }
             aria-label="Toggle Navigation Menu"
-            aria-expanded={
-              isMobileMenuOpen
-            }
+            aria-expanded={isMobileMenuOpen}
+            aria-controls="mobile-navigation"
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-300 bg-white text-slate-700 transition hover:bg-slate-50 md:hidden"
           >
             {isMobileMenuOpen ? (
@@ -254,18 +169,18 @@ export function Navbar() {
           </button>
         </div>
 
-        {/* MOBILE NAV */}
+        {/* MOBILE NAVIGATION */}
 
         {isMobileMenuOpen && (
-          <div className="mt-4 border-t border-slate-200 pt-4 md:hidden">
+          <div
+            id="mobile-navigation"
+            className="mt-4 border-t border-slate-200 pt-4 md:hidden"
+          >
             <div className="grid gap-1">
               <Link
                 href="/"
-                className={
-                  mobileLinkClasses(
-                    "/",
-                  )
-                }
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={mobileLinkClasses("/")}
               >
                 Home
               </Link>
@@ -274,44 +189,32 @@ export function Navbar() {
                 <>
                   <Link
                     href="/library"
-                    className={
-                      mobileLinkClasses(
-                        "/library",
-                      )
-                    }
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={mobileLinkClasses("/library")}
                   >
                     Library
                   </Link>
 
                   <Link
                     href="/wishlist"
-                    className={
-                      mobileLinkClasses(
-                        "/wishlist",
-                      )
-                    }
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={mobileLinkClasses("/wishlist")}
                   >
                     Wishlist
                   </Link>
 
                   <Link
                     href="/stats"
-                    className={
-                      mobileLinkClasses(
-                        "/stats",
-                      )
-                    }
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={mobileLinkClasses("/stats")}
                   >
                     Stats
                   </Link>
 
                   <Link
                     href="/profile"
-                    className={
-                      mobileLinkClasses(
-                        "/profile",
-                      )
-                    }
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={mobileLinkClasses("/profile")}
                   >
                     Account
                   </Link>
@@ -322,9 +225,7 @@ export function Navbar() {
                 (isLoggedIn ? (
                   <button
                     type="button"
-                    onClick={() =>
-                      void handleLogout()
-                    }
+                    onClick={() => void handleLogout()}
                     className="mt-2 rounded-xl border border-slate-300 bg-white px-4 py-3 text-left text-sm font-bold text-slate-700 transition hover:bg-slate-50"
                   >
                     Log Out
@@ -332,6 +233,7 @@ export function Navbar() {
                 ) : (
                   <Link
                     href="/login"
+                    onClick={() => setIsMobileMenuOpen(false)}
                     className="mt-2 rounded-xl bg-indigo-600 px-4 py-3 text-center text-sm font-bold text-white transition hover:bg-indigo-700"
                   >
                     Log In

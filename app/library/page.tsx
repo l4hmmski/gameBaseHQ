@@ -1,12 +1,27 @@
+
+import type { Metadata } from "next";
+
 import { AuthGuard } from "@/components/auth-guard";
 import { GameLibrary } from "@/components/game-library";
+
+export const metadata: Metadata = {
+  title: "My Game Library",
+
+  description:
+    "Manage your personal game collection, track what you are playing and organise your completed games with GameBaseHQ.",
+
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default function LibraryPage() {
   return (
     <AuthGuard>
-      <main className="min-h-screen bg-slate-50">
+      <main className="min-h-screen w-full min-w-0 bg-slate-50">
         <section className="border-b border-slate-200 bg-white">
-          <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8">
+          <div className="mx-auto w-full max-w-7xl px-5 py-14 sm:px-8">
             <p className="text-sm font-bold uppercase tracking-[0.2em] text-indigo-600">
               Personal Collection
             </p>
@@ -24,7 +39,7 @@ export default function LibraryPage() {
           </div>
         </section>
 
-        <div className="mx-auto max-w-7xl px-5 py-10 sm:px-8">
+        <div className="mx-auto w-full max-w-7xl min-w-0 px-5 py-10 sm:px-8">
           <GameLibrary />
         </div>
       </main>

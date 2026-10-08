@@ -1,34 +1,74 @@
-import type {
-  Metadata,
-} from "next";
 
-import {
-  Analytics,
-} from "@vercel/analytics/next";
+import type { Metadata } from "next";
+
+import { Analytics } from "@vercel/analytics/next";
 
 import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
 
 import "./globals.css";
 
-export const metadata: Metadata = {
-  title: {
-    default:
-      "Game Library",
+const siteUrl = "https://gamebasehq.app";
 
-    template:
-      "%s | Game Library",
+export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
+
+  applicationName: "GameBaseHQ",
+
+  title: {
+    default: "GameBaseHQ | Your Gaming World. One Place.",
+    template: "%s | GameBaseHQ",
   },
 
   description:
-    "Manage, rate and track your personal video game collection.",
+    "Build your game library, track your progress, rate games, manage your wishlist and discover what to play next. Connect Steam and bring your gaming world together with GameBaseHQ.",
+
+  keywords: [
+    "GameBaseHQ",
+    "game library",
+    "video game tracker",
+    "game collection",
+    "gaming wishlist",
+    "Steam game tracker",
+    "game recommendations",
+    "track games played",
+  ],
+
+  openGraph: {
+    type: "website",
+    siteName: "GameBaseHQ",
+    title: "GameBaseHQ | Your Gaming World. One Place.",
+    description:
+      "Track your games, build your collection, manage your wishlist and discover what to play next.",
+    locale: "en_AU",
+  },
+
+  twitter: {
+    card: "summary",
+    title: "GameBaseHQ | Your Gaming World. One Place.",
+    description:
+      "Your game library, wishlist, recommendations and Steam collection in one place.",
+  },
+
+  icons: {
+    icon: [
+      {
+        url: "/icon.png",
+        type: "image/png",
+      },
+    ],
+  },
+
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children:
-    React.ReactNode;
+  children: React.ReactNode;
 }>) {
   return (
     <html lang="en">
@@ -36,7 +76,7 @@ export default function RootLayout({
         <div className="flex min-h-screen flex-col">
           <Navbar />
 
-          <div className="flex-1">
+          <div className="min-w-0 flex-1">
             {children}
           </div>
 

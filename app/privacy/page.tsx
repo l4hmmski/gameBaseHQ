@@ -1,164 +1,297 @@
+
+import type { Metadata } from "next";
+import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy",
+  description:
+    "Learn how GameBaseHQ collects, uses and protects personal information.",
+    alternates: {
+    canonical: "/privacy",
+  },
+};
+
+const lastUpdated = "8 October 2026";
+
 export default function PrivacyPage() {
   return (
-    <main className="bg-slate-50">
-      <section className="border-b border-slate-200 bg-white">
-        <div className="mx-auto max-w-4xl px-5 py-16 sm:px-8">
-          <p className="text-sm font-bold uppercase tracking-[0.2em] text-indigo-600">
-            Legal
+    <main className="mx-auto w-full max-w-4xl px-5 py-12 sm:px-8 sm:py-16">
+      <header className="mb-10">
+        <p className="text-sm font-bold uppercase tracking-widest text-indigo-600">
+          Legal
+        </p>
+
+        <h1 className="mt-3 text-4xl font-black tracking-tight text-slate-950">
+          Privacy Policy
+        </h1>
+
+        <p className="mt-3 text-sm text-slate-500">
+          Last updated: {lastUpdated}
+        </p>
+
+        <p className="mt-6 leading-8 text-slate-600">
+          GameBaseHQ respects your privacy. This Privacy
+          Policy explains how information may be collected,
+          used, stored and shared when you use our website
+          and services.
+        </p>
+      </header>
+
+      <article className="space-y-10 text-sm leading-7 text-slate-600 sm:text-base">
+        <section>
+          <h2 className="mb-3 text-xl font-bold text-slate-950">
+            1. Information We Collect
+          </h2>
+
+          <p>
+            Depending on how you use GameBaseHQ,
+            we may collect:
           </p>
 
-          <h1 className="mt-3 text-4xl font-black tracking-tight text-slate-950 sm:text-5xl">
-            Privacy Policy
-          </h1>
+          <ul className="mt-3 list-disc space-y-2 pl-6">
+            <li>
+              Account information, such as your email
+              address and authentication identifiers.
+            </li>
+            <li>
+              Profile information you choose to provide.
+            </li>
+            <li>
+              Game library information, including
+              saved games, ratings, statuses and wishlists.
+            </li>
+            <li>
+              Steam account identifiers and supported
+              game information when you connect Steam.
+            </li>
+            <li>
+              Technical and usage information, such as
+              page visits, browser information and
+              interactions with website features.
+            </li>
+            <li>
+              Messages or enquiries you choose to send us.
+            </li>
+          </ul>
+        </section>
 
-          <p className="mt-4 text-slate-500">
-            Last Updated: October 2026
+        <section>
+          <h2 className="mb-3 text-xl font-bold text-slate-950">
+            2. How We Use Information
+          </h2>
+
+          <p>
+            We use information where reasonably necessary
+            to operate and improve GameBaseHQ, including to:
           </p>
 
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-            This Privacy Policy explains
-            what information may be
-            collected when you use Game
-            Library and how that information
-            may be used.
+          <ul className="mt-3 list-disc space-y-2 pl-6">
+            <li>Create and manage user accounts.</li>
+            <li>Save and display game collections.</li>
+            <li>Provide library, wishlist and tracking features.</li>
+            <li>Support optional Steam integration.</li>
+            <li>Maintain security and investigate misuse.</li>
+            <li>Understand website performance and usage.</li>
+            <li>Respond to support enquiries.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 className="mb-3 text-xl font-bold text-slate-950">
+            3. Authentication and Account Security
+          </h2>
+
+          <p>
+            GameBaseHQ uses third-party authentication
+            and database services, including Supabase,
+            to support account creation, sign-in and
+            information storage.
           </p>
-        </div>
-      </section>
 
-      <section className="mx-auto max-w-4xl px-5 py-12 sm:px-8">
-        <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm sm:p-10">
-          <div className="space-y-10">
-            <section>
-              <h2 className="text-xl font-black text-slate-950">
-                1. Information We Collect
-              </h2>
+          <p className="mt-3">
+            If you sign in using Google, authentication
+            information is processed as part of that
+            sign-in process. GameBaseHQ does not receive
+            your Google account password.
+          </p>
+        </section>
 
-              <p className="mt-3 leading-7 text-slate-600">
-                When you create an account,
-                Game Library may store
-                information such as your
-                email address, username,
-                display name, profile
-                information and the games
-                that you add to your
-                library.
-              </p>
-            </section>
+        <section>
+          <h2 className="mb-3 text-xl font-bold text-slate-950">
+            4. Steam Integration
+          </h2>
 
-            <section>
-              <h2 className="text-xl font-black text-slate-950">
-                2. Account Information
-              </h2>
+          <p>
+            Connecting your Steam account is optional.
+            When you choose to connect Steam, GameBaseHQ
+            may access your Steam identifier, public
+            profile information and supported game
+            information through Steam services.
+          </p>
 
-              <p className="mt-3 leading-7 text-slate-600">
-                Account authentication and
-                database services may be
-                provided using Supabase.
-                Authentication information
-                is used to identify your
-                account and protect access
-                to your personal game
-                library.
-              </p>
-            </section>
+          <p className="mt-3">
+            The availability of Steam information depends
+            on your Steam privacy settings and the
+            information Steam makes available.
+          </p>
 
-            <section>
-              <h2 className="text-xl font-black text-slate-950">
-                3. Game Library Information
-              </h2>
+          <p className="mt-3">
+            Disconnecting Steam stops future access
+            through that connection, but previously
+            imported game information may remain in
+            your GameBaseHQ library until removed.
+          </p>
+        </section>
 
-              <p className="mt-3 leading-7 text-slate-600">
-                Information about games
-                added to your library may
-                include game titles,
-                platforms, playing status
-                and associated cover image
-                URLs.
-              </p>
-            </section>
+        <section>
+          <h2 className="mb-3 text-xl font-bold text-slate-950">
+            5. Third-Party Services
+          </h2>
 
-            <section>
-              <h2 className="text-xl font-black text-slate-950">
-                4. Third-Party Services
-              </h2>
+          <p>
+            GameBaseHQ may use third-party services
+            to operate its features, including:
+          </p>
 
-              <p className="mt-3 leading-7 text-slate-600">
-                Game Library may use
-                third-party services to
-                provide certain features.
-                This may include Supabase
-                for authentication and data
-                storage and IGDB for video
-                game information and
-                artwork.
-              </p>
-            </section>
+          <ul className="mt-3 list-disc space-y-2 pl-6">
+            <li>Supabase for authentication and data storage.</li>
+            <li>Vercel for website hosting and analytics.</li>
+            <li>IGDB for game information and artwork.</li>
+            <li>Steam for optional account and game integration.</li>
+            <li>Google for optional account authentication.</li>
+            <li>Amazon for affiliate product links.</li>
+          </ul>
 
-            <section>
-              <h2 className="text-xl font-black text-slate-950">
-                5. How Information Is Used
-              </h2>
+          <p className="mt-3">
+            These providers may process information
+            under their own privacy policies.
+          </p>
+        </section>
 
-              <p className="mt-3 leading-7 text-slate-600">
-                Information collected by
-                Game Library is used to
-                operate the service,
-                maintain user accounts,
-                display personal game
-                libraries and provide the
-                features available within
-                the application.
-              </p>
-            </section>
+        <section>
+          <h2 className="mb-3 text-xl font-bold text-slate-950">
+            6. Analytics and Cookies
+          </h2>
 
-            <section>
-              <h2 className="text-xl font-black text-slate-950">
-                6. Data Security
-              </h2>
+          <p>
+            We may use analytics tools to understand
+            how GameBaseHQ is used and identify areas
+            for improvement.
+          </p>
 
-              <p className="mt-3 leading-7 text-slate-600">
-                Reasonable steps are taken
-                to protect information
-                stored through Game Library.
-                However, no online service
-                or method of electronic
-                storage can guarantee
-                complete security.
-              </p>
-            </section>
+          <p className="mt-3">
+            Authentication technologies, including
+            cookies or similar browser storage, may
+            be used to maintain your sign-in session
+            and support website functionality.
+          </p>
+        </section>
 
-            <section>
-              <h2 className="text-xl font-black text-slate-950">
-                7. Changes to This Policy
-              </h2>
+        <section>
+          <h2 className="mb-3 text-xl font-bold text-slate-950">
+            7. Data Storage and Security
+          </h2>
 
-              <p className="mt-3 leading-7 text-slate-600">
-                This Privacy Policy may be
-                updated as Game Library
-                develops or new features
-                and services are introduced.
-                The date at the top of this
-                page will be updated when
-                significant changes are
-                made.
-              </p>
-            </section>
+          <p>
+            We take reasonable steps to protect
+            information against unauthorised access,
+            misuse, loss and disclosure.
+          </p>
 
-            <section>
-              <h2 className="text-xl font-black text-slate-950">
-                8. Contact
-              </h2>
+          <p className="mt-3">
+            However, no online service or method
+            of electronic storage can be guaranteed
+            to be completely secure.
+          </p>
+        </section>
 
-              <p className="mt-3 leading-7 text-slate-600">
-                Questions regarding this
-                Privacy Policy can be
-                submitted through the
-                Contact page.
-              </p>
-            </section>
-          </div>
-        </div>
-      </section>
+        <section>
+          <h2 className="mb-3 text-xl font-bold text-slate-950">
+            8. International Data Processing
+          </h2>
+
+          <p>
+            Some third-party service providers may
+            store or process information outside
+            Australia. Where applicable, their
+            infrastructure and privacy practices
+            may be subject to overseas laws.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="mb-3 text-xl font-bold text-slate-950">
+            9. Data Retention and Account Deletion
+          </h2>
+
+          <p>
+            We retain information for as long as
+            reasonably necessary to provide our
+            services, comply with applicable
+            obligations and address legitimate
+            operational needs.
+          </p>
+
+          <p className="mt-3">
+            You may request deletion of your account
+            and associated information through
+            available account features or by
+            contacting us.
+          </p>
+
+          <p className="mt-3">
+            Some information may remain temporarily
+            in backups or be retained where required
+            or permitted by law.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="mb-3 text-xl font-bold text-slate-950">
+            10. Your Privacy Choices
+          </h2>
+
+          <p>
+            You may contact us to request access
+            to, correction of or deletion of
+            personal information, subject to
+            applicable law and reasonable
+            verification requirements.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="mb-3 text-xl font-bold text-slate-950">
+            11. Changes to This Policy
+          </h2>
+
+          <p>
+            We may update this Privacy Policy
+            when our services, practices or
+            legal obligations change. The
+            latest version will be published
+            on this page.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="mb-3 text-xl font-bold text-slate-950">
+            12. Contact
+          </h2>
+
+          <p>
+            For privacy questions or requests,
+            please use our{" "}
+            <Link
+              href="/contact"
+              className="font-semibold text-indigo-600 hover:underline"
+            >
+              Contact page
+            </Link>
+            .
+          </p>
+        </section>
+      </article>
     </main>
   );
 }

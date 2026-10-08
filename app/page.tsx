@@ -1,5 +1,37 @@
+
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: {
+    absolute: "GameBaseHQ | Your Gaming World. One Place.",
+  },
+
+  description:
+    "Organise your video game collection with GameBaseHQ. Track games across PC, PlayStation, Xbox and Nintendo, manage your wishlist, rate games and connect your Steam library.",
+
+  alternates: {
+    canonical: "/",
+  },
+
+  openGraph: {
+    type: "website",
+    url: "https://gamebasehq.app/",
+    siteName: "GameBaseHQ",
+    title: "GameBaseHQ | Your Gaming World. One Place.",
+    description:
+      "Build your game library, track your progress and manage your gaming collection across every platform.",
+    locale: "en_AU",
+  },
+
+  twitter: {
+    card: "summary",
+    title: "GameBaseHQ | Your Gaming World. One Place.",
+    description:
+      "Your game library, wishlist and gaming progress, all in one place.",
+  },
+};
 
 const featuredGames = [
   {
@@ -18,17 +50,17 @@ const featuredGames = [
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-slate-50">
+    <main className="min-h-screen w-full min-w-0 bg-slate-50">
       {/* HERO */}
 
-      <section className="border-b border-slate-200 bg-white">
-        <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 sm:px-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:py-28">
-          <div>
+      <section className="w-full border-b border-slate-200 bg-white">
+        <div className="mx-auto grid w-full max-w-7xl min-w-0 grid-cols-1 gap-12 px-5 py-16 sm:px-8 sm:py-20 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-center lg:py-28">
+          <div className="min-w-0">
             <p className="text-sm font-bold uppercase tracking-[0.2em] text-indigo-600">
               Your Personal Collection
             </p>
 
-            <h1 className="mt-4 max-w-3xl text-5xl font-black tracking-tight text-slate-950 sm:text-6xl">
+            <h1 className="mt-4 max-w-3xl text-4xl font-black tracking-tight text-slate-950 sm:text-6xl">
               Every Game You Own.
 
               <span className="block text-indigo-600">
@@ -61,61 +93,53 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="relative">
-            <div className="absolute -inset-4 rounded-[2rem] bg-indigo-100 blur-2xl" />
+          {/* FEATURED GAME PREVIEW */}
 
-            <div className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-slate-950 p-6 shadow-2xl">
-              <div className="flex items-center justify-between">
-                <div>
+          <div className="relative min-w-0">
+            <div className="pointer-events-none absolute -inset-4 rounded-[2rem] bg-indigo-100 blur-2xl" />
+
+            <div className="relative min-w-0 overflow-hidden rounded-[2rem] border border-slate-200 bg-slate-950 p-4 shadow-2xl sm:p-6">
+              <div className="flex min-w-0 items-center justify-between gap-3">
+                <div className="min-w-0">
                   <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-400">
                     Your Library
                   </p>
 
-                  <h2 className="mt-2 text-2xl font-black text-white">
+                  <h2 className="mt-2 text-xl font-black text-white sm:text-2xl">
                     Currently Playing
                   </h2>
                 </div>
 
-                <div className="rounded-full bg-indigo-500/20 px-3 py-1 text-xs font-bold text-indigo-300">
+                <div className="shrink-0 rounded-full bg-indigo-500/20 px-3 py-1 text-xs font-bold text-indigo-300">
                   Playing
                 </div>
               </div>
 
-              <div className="mt-8 grid grid-cols-3 gap-3">
-                {featuredGames.map(
-                  (game) => (
-                    <div
-                      key={
-                        game.title
-                      }
-                      className="relative aspect-[3/4] min-w-0 overflow-hidden rounded-2xl bg-slate-800"
-                    >
-                      <Image
-                        src={
-                          game.image
-                        }
-                        alt={
-                          game.title
-                        }
-                        fill
-                        sizes="(max-width: 768px) 30vw, 180px"
-                        className="object-cover"
-                      />
+              <div className="mt-8 grid min-w-0 grid-cols-3 gap-2 sm:gap-3">
+                {featuredGames.map((game) => (
+                  <div
+                    key={game.title}
+                    className="relative aspect-[3/4] min-w-0 overflow-hidden rounded-xl bg-slate-800 sm:rounded-2xl"
+                  >
+                    <Image
+                      src={game.image}
+                      alt={game.title}
+                      fill
+                      sizes="(max-width: 768px) 30vw, 180px"
+                      className="object-cover"
+                    />
 
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
 
-                      <p className="absolute bottom-3 left-3 right-3 text-xs font-bold leading-tight text-white sm:text-sm">
-                        {
-                          game.title
-                        }
-                      </p>
-                    </div>
-                  ),
-                )}
+                    <p className="absolute right-2 bottom-2 left-2 text-[10px] font-bold leading-tight text-white sm:right-3 sm:bottom-3 sm:left-3 sm:text-sm">
+                      {game.title}
+                    </p>
+                  </div>
+                ))}
               </div>
 
               <div className="mt-6 grid grid-cols-3 gap-3 border-t border-slate-800 pt-6">
-                <div>
+                <div className="min-w-0">
                   <p className="text-2xl font-black text-white">
                     24
                   </p>
@@ -125,7 +149,7 @@ export default function HomePage() {
                   </p>
                 </div>
 
-                <div>
+                <div className="min-w-0">
                   <p className="text-2xl font-black text-white">
                     6
                   </p>
@@ -135,7 +159,7 @@ export default function HomePage() {
                   </p>
                 </div>
 
-                <div>
+                <div className="min-w-0">
                   <p className="text-2xl font-black text-white">
                     11
                   </p>
@@ -152,15 +176,14 @@ export default function HomePage() {
 
       {/* FEATURES */}
 
-      <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8">
+      <section className="mx-auto w-full max-w-7xl min-w-0 px-5 py-16 sm:px-8">
         <div className="max-w-2xl">
           <p className="text-sm font-bold uppercase tracking-[0.2em] text-indigo-600">
             Simple Organisation
           </p>
 
           <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
-            Your Collection Without the
-            Clutter.
+            Your Collection Without the Clutter.
           </h2>
 
           <p className="mt-4 text-lg leading-8 text-slate-600">
@@ -170,8 +193,8 @@ export default function HomePage() {
           </p>
         </div>
 
-        <div className="mt-10 grid gap-6 md:grid-cols-3">
-          <section className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
+        <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
+          <section className="min-w-0 rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-100 text-xl font-black text-indigo-700">
               01
             </div>
@@ -187,7 +210,7 @@ export default function HomePage() {
             </p>
           </section>
 
-          <section className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
+          <section className="min-w-0 rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-100 text-xl font-black text-indigo-700">
               02
             </div>
@@ -203,7 +226,7 @@ export default function HomePage() {
             </p>
           </section>
 
-          <section className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
+          <section className="min-w-0 rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-100 text-xl font-black text-indigo-700">
               03
             </div>

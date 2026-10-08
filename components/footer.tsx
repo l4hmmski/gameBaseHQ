@@ -1,45 +1,50 @@
+
 import Link from "next/link";
 
 export function Footer() {
   return (
-    <footer className="border-t border-slate-200 bg-white">
-      <div className="mx-auto max-w-7xl px-5 py-10 sm:px-8">
-        <div className="grid gap-10 md:grid-cols-[1fr_auto] md:items-start">
-          <div>
+    <footer className="w-full min-w-0 border-t border-slate-200 bg-white">
+      <div className="mx-auto w-full max-w-7xl min-w-0 px-5 py-10 sm:px-8">
+        <div className="grid min-w-0 grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
+
+          {/* BRAND AND DESCRIPTION */}
+
+          <div className="min-w-0">
             <Link
               href="/"
-              className="inline-flex items-center gap-3"
+              className="inline-flex max-w-full items-center"
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-lg font-black text-white shadow-sm">
-                G
-              </div>
-
-              <div>
-                <p className="font-black tracking-tight text-slate-950">
-                  Game Library
-                </p>
-
-                <p className="text-sm text-slate-500">
-                  Track Your Collection
-                </p>
-              </div>
+              <span className="text-xl font-black tracking-tight sm:text-2xl">
+                <span className="text-slate-950">
+                  GameBase
+                </span>
+                <span className="text-indigo-600">
+                  HQ
+                </span>
+              </span>
             </Link>
 
+            <p className="mt-2 text-sm font-medium text-slate-500">
+              Your Gaming World. One Place.
+            </p>
+
             <p className="mt-5 max-w-md text-sm leading-6 text-slate-500">
-              A simple way to organise your
-              video game collection, track
-              what you are playing and keep
-              your games across multiple
-              platforms in one place.
+              Organise your video game collection,
+              track what you are playing, manage
+              your wishlist and discover new games.
+              Bring your gaming world together
+              with GameBaseHQ.
             </p>
           </div>
 
-          <div>
+          {/* INFORMATION LINKS */}
+
+          <div className="min-w-0">
             <p className="mb-4 text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
               Information
             </p>
 
-            <div className="grid grid-cols-2 gap-x-10 gap-y-3 text-sm sm:grid-cols-3">
+            <div className="grid min-w-0 grid-cols-1 gap-x-6 gap-y-3 text-sm min-[360px]:grid-cols-2 sm:grid-cols-3 lg:gap-x-10">
               <Link
                 href="/about"
                 className="font-semibold text-slate-600 transition hover:text-indigo-600"
@@ -71,7 +76,7 @@ export function Footer() {
               <a
                 href="https://www.igdb.com/"
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className="font-semibold text-slate-600 transition hover:text-indigo-600"
               >
                 IGDB
@@ -80,15 +85,17 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 flex flex-col gap-3 border-t border-slate-100 pt-6 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+        {/* COPYRIGHT */}
+
+        <div className="mt-10 flex min-w-0 flex-col gap-3 border-t border-slate-100 pt-6 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
           <p>
-            © {new Date().getFullYear()} Game
-            Library. All rights reserved.
+            © {new Date().getFullYear()} GameBaseHQ.
+            All rights reserved.
           </p>
 
           <p>
-            Game information and artwork
-            provided by IGDB.
+            Game information and artwork provided
+            by IGDB.
           </p>
         </div>
       </div>

@@ -1,3 +1,4 @@
+
 @import "tailwindcss";
 
 :root {
@@ -12,17 +13,48 @@
   --font-mono: var(--font-geist-mono);
 }
 
-* {
+/* Global box sizing */
+
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
+/* Base page styling */
+
 html {
+  width: 100%;
+  min-width: 0;
   background: var(--background);
 }
 
 body {
+  width: 100%;
+  min-width: 0;
   margin: 0;
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Keep media responsive */
+
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
+}
+
+/* Prevent long text from breaking layouts */
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
 }
